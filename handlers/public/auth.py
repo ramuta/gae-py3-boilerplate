@@ -17,7 +17,7 @@ def init(**params):
     # else proceed with initialization
     if request.method == "GET":
         params["app_settings"] = AppSettings.get()
-        return render_template_with_translations("auth/init.html", **params)
+        return render_template_with_translations("public/auth/init.html", **params)
     elif request.method == "POST":
         pass
 
@@ -25,4 +25,4 @@ def init(**params):
 @public_handler
 def registration(**params):
     params["app_settings"] = AppSettings.get()
-    return render_template_with_translations("auth/registration.html", **params)
+    return render_template_with_translations("public/auth/registration.html", **params)
