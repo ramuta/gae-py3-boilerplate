@@ -8,9 +8,9 @@ class AppSettings(ndb.Model):
     sendgrid_api_key = ndb.StringProperty()
 
     # types of authentication
-    auth_username_password = ndb.StringProperty(default="no")
-    auth_email_password = ndb.StringProperty(default="no")
-    auth_email_only = ndb.StringProperty(default="no")  # passwordless login, via email magic link
+    auth_username_password = ndb.StringProperty(default="YES")
+    auth_email_password = ndb.StringProperty(default="YES")
+    auth_email_only = ndb.StringProperty(default="YES")  # passwordless login, via email magic link
 
     @classmethod
     def get(cls):

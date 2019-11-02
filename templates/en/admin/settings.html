@@ -1,0 +1,63 @@
+{% extends lang+"/base.html" %}
+
+{% block title %}Web app settings{% endblock title %}
+
+{% block scripts %}
+<script src="/static/custom/js/web-app-settings.js"></script>
+{% endblock scripts %}
+
+{% block content %}
+<h1>Web app settings</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+
+            <div class="dropdown mb-2">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuSendGrid" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Use SendGrid emailing: YES
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuSendGrid">
+                    <a class="dropdown-item" href="#" onclick="useSendGrid('YES')">YES</a>
+                    <a class="dropdown-item" href="#" onclick="useSendGrid('NO')">NO</a>
+                </div>
+            </div>
+
+            <div class="form-group" id="sendGridDiv">
+                <label for="sendGridKeyInput">Enter SendGrid API Key</label>
+                <input type="text" class="form-control" id="sendGridKeyInput" placeholder="Enter SendGrid API Key" name="init-sendgrid" required>
+            </div>
+
+            <div id="authOptionsDiv">
+                <h3>Auth Options</h3>
+
+                <div class="form-group">
+                    <label for="usernamePasswordAuth">Enable username/password auth</label>
+                    <select class="custom-select" id="usernamePasswordAuth" name="usernamePasswordAuth">
+                        <option value="YES" selected>YES</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailPasswordAuth">Enable email/password auth</label>
+                    <select class="custom-select" id="emailPasswordAuth" name="emailPasswordAuth">
+                        <option value="YES" selected>YES</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailOnlyAuth">Enable email-only auth</label>
+                    <select class="custom-select" id="emailOnlyAuth" name="emailOnlyAuth">
+                        <option value="YES" selected>YES</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}
