@@ -1,0 +1,13 @@
+{% extends lang+"/base.html" %}
+
+{% block title %}Users{% endblock title %}
+
+{% block content %}
+<h1>Users</h1>
+
+<ul>
+    {% for some_user in users %}
+    <li><a href="{{ url_for('admin.users.user_details', user_id=some_user.get_id) }}">{{ some_user.email_address }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock content %}

@@ -5,17 +5,12 @@ client = get_db()
 
 
 class AppSettings(ndb.Model):
-    sendgrid_api_key = ndb.StringProperty()
-
-    # types of authentication
-    auth_username_password = ndb.StringProperty(default="YES")
-    auth_email_password = ndb.StringProperty(default="YES")
-    auth_email_only = ndb.StringProperty(default="YES")  # passwordless login, via email magic link
+    sendgrid_api_key = ndb.StringProperty(default="")
 
     @classmethod
     def get(cls):
         with client.context():
-            app_settings = cls.query().get()
+            app_settings = cls.query().get()  # you can use TinyDB (with in-memory storage) for caching
 
             if not app_settings:
                 app_settings = cls()
@@ -24,22 +19,12 @@ class AppSettings(ndb.Model):
             return app_settings
 
     @classmethod
-    def update(cls, sendgrid_api_key=None, auth_username_password=None, auth_email_password=None,
-               auth_email_only=None):
+    def update(cls, sendgrid_api_key=None):
         with client.context():
             app_settings = cls.get()
 
             if sendgrid_api_key:
                 app_settings.sendgrid_api_key = sendgrid_api_key
-
-            if auth_email_only:
-                app_settings.auth_email_only = auth_email_only
-
-            if auth_email_password:
-                app_settings.auth_email_password = auth_email_password
-
-            if auth_username_password:
-                app_settings.auth_username_password = auth_username_password
 
             app_settings.put()
 

@@ -10,35 +10,14 @@
 <div class="row">
     <div class="col-md-6">
         <form method="post">
-            <h3>SendGrid data</h3>
-
             <div class="form-group" id="sendGridDiv">
-                <label for="sendGridKeyInput">Enter SendGrid API Key (optional)</label>
-                <input type="text" class="form-control" id="sendGridKeyInput" placeholder="Enter SendGrid API Key" name="init-sendgrid">
-                <small><em>(optional, you can add it later)</em></small>
-            </div>
-
-            <h3>Admin data</h3>
-
-            <div class="form-group">
-                <label for="usernameInput">Username *</label>
-                <input type="text" class="form-control" id="usernameInput" placeholder="Enter username" name="init-username" required>
+                <label for="sendGridKeyInput">Enter SendGrid API Key</label>
+                <input type="text" class="form-control" id="sendGridKeyInput" placeholder="Enter SendGrid API Key" name="init-sendgrid" required>
             </div>
 
             <div class="form-group">
-                <label for="emailInput">Email (optional)</label>
-                <input type="email" class="form-control" id="emailInput" placeholder="Enter your email address" name="init-email">
-                <small><em>(optional, you can add it later)</em></small>
-            </div>
-
-            <div class="form-group">
-                <label for="passwordInput">Password *</label>
-                <input type="password" class="form-control" id="passwordInput" placeholder="Enter a secure password" name="init-password" required>
-            </div>
-
-            <div class="form-group">
-                <label for="repeatInput">Repeat password *</label>
-                <input type="password" class="form-control" id="repeatInput" placeholder="Repeat password" name="init-repeat" required>
+                <label for="emailInput">Your email address</label>
+                <input type="email" class="form-control" id="emailInput" placeholder="Enter your email address" name="init-email" required>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
