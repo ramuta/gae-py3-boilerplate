@@ -7,6 +7,7 @@ from operator import attrgetter
 import bcrypt
 from google.cloud import ndb
 from models import get_db
+from utils.check_environment import is_local
 from utils.email_helper import send_email
 
 client = get_db()
@@ -59,7 +60,11 @@ class User(ndb.Model):
 
     # class methods (ordered by alphabet)
     @classmethod
-    def create(cls, email_address, password=None, admin=False):
+    def create(cls, email_address, password=None, admin=False, email_address_verified=False):
+        if email_address_verified:
+            if not is_local():
+                email_address_verified = False  # True should only be allowed on localhost, for testing purposes
+
         with client.context():
             # check if there's any user with the same email address already
             user = cls.query(cls.email_address == email_address).get()
@@ -71,7 +76,8 @@ class User(ndb.Model):
                     hashed = bcrypt.hashpw(password=str.encode(password), salt=bcrypt.gensalt(12))
 
                 # create the user object and store it into Datastore
-                user = cls(email_address=email_address, password_hash=hashed, admin=admin)
+                user = cls(email_address=email_address, password_hash=hashed, admin=admin,
+                           email_address_verified=email_address_verified)
                 user.put()
 
             return user

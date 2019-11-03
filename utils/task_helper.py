@@ -1,4 +1,6 @@
 import json
+import os
+
 import requests
 from google.cloud import tasks_v2
 
@@ -8,10 +10,10 @@ from utils.check_environment import is_local
 
 def run_background_task(relative_path, payload, project=None, queue=None, location=None):
     if is_local():
-        # localhost: call the task via POST request (for testing purposes only)
-        requests.post("http://localhost:8080{relative_path}".format(relative_path=relative_path),
-                      data=json.dumps(payload).encode(),
-                      headers={"Content-type": "application/octet-stream"})
+        if os.environ.get("TESTING") != "yes":  # pytest has issues with running requests
+            requests.post("http://localhost:8080{relative_path}".format(relative_path=relative_path),
+                          data=json.dumps(payload).encode(),
+                          headers={"Content-type": "application/octet-stream"})
     else:
         # production
         if not project:

@@ -65,7 +65,7 @@ def login_required(func):
             if user:
                 return func(**params)
 
-        return redirect(url_for("public.login"))
+        return redirect(url_for("public.auth.login"))
 
     return wrapper
 
@@ -87,6 +87,6 @@ def admin_required(func):
                 logging.error("Non-admin user {username} wanted to access an admin-only page.".format(username=user.username))
                 return abort(403)
 
-        return redirect(url_for("public.login"))
+        return redirect(url_for("public.auth.login"))
 
     return wrapper

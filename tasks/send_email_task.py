@@ -22,6 +22,8 @@ def send_email_via_sendgrid():
         logging.warning("Sender: {}".format(sender_email))
         logging.warning("Subject: {}".format(email_subject))
         logging.warning("Body: {}".format(email_body))
+
+        return "{sender_email} {email_subject}".format(sender_email=sender_email, email_subject=email_subject)
     else:
         # production
         if request.headers.get("X-AppEngine-QueueName"):
@@ -38,4 +40,4 @@ def send_email_via_sendgrid():
 
             # TODO: send via SendGrid
 
-    return "true"
+        return "true"

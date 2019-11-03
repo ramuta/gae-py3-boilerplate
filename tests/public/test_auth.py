@@ -44,3 +44,27 @@ def test_init_post(client):
 def test_register_get(client):
     response = client.get('/register')
     assert b'Registration' in response.data
+
+
+def test_login_get(client):
+    response = client.get('/login')
+    assert b'Login' in response.data
+    assert b"After you click submit, you'll receive an email" in response.data
+
+
+def test_login_post_success(client):
+    user = User.create(email_address="testman@test.man", password="test123")
+
+    data = {"login-email": "testman@test.man"}
+    response = client.post('/login', data=data, follow_redirects=True)
+    assert b'Magic Login Link sent to your email address' in response.data
+    assert 200 == response.status_code
+
+
+def test_login_post_fail(client):
+    user = User.create(email_address="testman@test.man", password="test123")
+
+    data = {"login-email": "testman23@test.man"}  # WRONG EMAIL!!!
+    response = client.post('/login', data=data, follow_redirects=True)
+    assert 403 == response.status_code
+    assert b'User with this email is not registered yet' in response.data
