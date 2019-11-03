@@ -3,6 +3,7 @@ from flask import Flask
 from handlers.admin import users
 from handlers.public import main as public_main, auth
 from handlers.profile import main as profile_main
+from tasks.send_email_task import send_email_via_sendgrid
 from utils.check_environment import is_local
 
 app = Flask(__name__)
@@ -30,6 +31,11 @@ app.add_url_rule(rule="/profile/session/delete", endpoint="profile.main.session_
 app.add_url_rule(rule="/admin/users", endpoint="admin.users.users_list", view_func=users.users_list, methods=["GET"])
 app.add_url_rule(rule="/admin/user/<user_id>", endpoint="admin.users.user_details", view_func=users.user_details,
                  methods=["GET"])
+
+
+# TASKS
+app.add_url_rule(rule="/tasks/send-email", endpoint="tasks.send_email_task.send_email_via_sendgrid",
+                 view_func=send_email_via_sendgrid, methods=["POST"])
 
 if __name__ == '__main__':
     if is_local():

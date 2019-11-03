@@ -1,0 +1,14 @@
+queue:
+- name: default
+  rate: 5/s
+  retry_parameters:
+    task_retry_limit: 8
+    min_backoff_seconds: 30
+    max_doublings: 8
+
+- name: email
+  rate: 5/s
+  retry_parameters:
+    task_retry_limit: 8
+    min_backoff_seconds: 30
+    max_doublings: 8

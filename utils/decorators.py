@@ -44,6 +44,8 @@ def public_handler(func):
             user = User.get_user_by_session_token(session_token=session_token)
             params["user"] = user
 
+            # TODO: is session is not valid, delete the cookie
+
         return func(**params)
 
     return wrapper

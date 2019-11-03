@@ -5,3 +5,5 @@ pytest
 google-cloud-ndb
 bcrypt
 sendgrid
+google-cloud-tasks
+requests

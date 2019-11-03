@@ -1,6 +1,8 @@
-import logging
+from flask import url_for
 
+from models.app_settings import AppSettings
 from utils.check_environment import is_local
+from utils.task_helper import run_background_task
 from utils.translations import render_template_with_translations
 
 
@@ -9,16 +11,19 @@ def send_email(recipient_email, email_template, email_params, email_subject, sen
     if not sender_email:
         sender_email = "info@your.webapp"
 
+    # send web app URL data by default to every email template
+    if is_local():
+        email_params["app_root_url"] = "http://localhost:8080"
+    else:
+        email_params["app_root_url"] = AppSettings.gc_url
+
+    # render the email HTML body
     email_body = render_template_with_translations(email_template, **email_params)
 
-    if not is_local():
-        # production
-        # TODO: send email via SendGrid
-        pass
-    else:
-        # localhost
-        logging.warning("SEND EMAIL: Not really sending email because we're on localhost.")
-        logging.warning("Recipient: {}".format(recipient_email))
-        logging.warning("Sender: {}".format(sender_email))
-        logging.warning("Subject: {}".format(email_subject))
-        logging.warning("Body: {}".format(email_body))
+    # params sent to the background task
+    payload = {"recipient_email": recipient_email, "email_subject": email_subject, "sender_email": sender_email,
+               "email_body": email_body}
+
+    run_background_task(relative_path=url_for("tasks.send_email_task.send_email_via_sendgrid"),
+                        payload=payload, queue="email", project=AppSettings.gc_project_name,
+                        location=AppSettings.gc_region)

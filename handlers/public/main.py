@@ -1,3 +1,4 @@
+import logging
 from utils.decorators import public_handler
 from utils.translations import render_template_with_translations
 

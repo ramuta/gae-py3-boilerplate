@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import logging
 import secrets
 from operator import attrgetter
 
@@ -91,9 +92,11 @@ class User(ndb.Model):
         return user
 
     @classmethod
-    def fetch(cls, limit=None):
+    def fetch(cls, email_address_verified=True, suspended=False, deleted=False, limit=None):
         with client.context():
-            users = cls.query().fetch(limit=limit)
+            users = cls.query(cls.email_address_verified == email_address_verified,
+                              cls.suspended == suspended,
+                              cls.deleted == deleted).fetch(limit=limit)
 
             return users
 
@@ -117,7 +120,12 @@ class User(ndb.Model):
             if not user.sessions:
                 user.sessions = [session]
             else:
-                user.sessions.append(session)
+                valid_sessions = [session]
+                for item in user.sessions:  # loop through sessions and remove the expired ones
+                    if item.expired > datetime.datetime.now():
+                        valid_sessions.append(item)
+
+                user.sessions = valid_sessions  # now only non-expired sessions are stored in the User object
 
             user.put()
 
@@ -144,6 +152,18 @@ class User(ndb.Model):
             user = cls.query(cls.sessions.token_hash == token_hash).get()
 
             if not user:
+                return None
+
+            if user.deleted:
+                logging.warning("Deleted user {} wanted to login.".format(user.email_address))
+                return None
+
+            if user.suspended:
+                logging.warning("Suspended user {} wanted to login.".format(user.email_address))
+                return None
+
+            if not user.email_address_verified:
+                logging.warning("User with unverified email address {} wanted to login.".format(user.email_address))
                 return None
 
             # important: you can't check for expiration in the cls.query() above, because it wouldn't only check the
