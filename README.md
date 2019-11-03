@@ -5,16 +5,20 @@ A web application starter for Google App Engine Python 3 runtime.
 > **WORK IN PROGRESS:** This template is not completed yet.
 >
 > TODO:
+> - sendgrid
 > - registration system
-> - login system
 > - suspend user
+> - delete user
+> - edit password
+> - login with password
+> - translation system for email subjects
 
 ## Features
 
-- Different types of authentication system:
+- **Different types of authentication system:**
   - Email-only auth (password-less, login is via emailed magic link)
   - Email/password authentication
-- Translations
+- **Translations:**
   - In-built simple translation system
   - Each language has its own templates folder
 
@@ -68,6 +72,23 @@ Then you can run the Datastore Viewer using this command:
 
 Datastore Viewer will run on [http://127.0.0.1:8082/](http://127.0.0.1:8082/). Enter `test` as the project name and 
 you'll see the data in your Datastore.
+
+## Background tasks
+
+Background tasks are done using Cloud Tasks. There's one example (sending emails) of how to do it in this project 
+template. See the following files for more detail:
+
+- utils/task_helper.py
+- tasks/send_email_task.py
+
+Whenever you'll want to create a background task, use this function from utils/task_helper.py:
+
+    run_background_task(relative_path, payload)
+
+Make sure you have `gc_project_name` and `gc_region` set in `AppSettings`.
+
+The task queues are set in `queue.yaml`. Currently two queues are set, `default` and `email`. If you need additional 
+ones, edit the `queue.yaml` file.
 
 ## Cron jobs
 

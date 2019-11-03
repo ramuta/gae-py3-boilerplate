@@ -7,6 +7,7 @@ from utils.check_environment import is_local
 
 
 def send_email_via_sendgrid():
+    """A background task that sends an email via SendGrid."""
     if is_local():
         # localhost
         data = json.loads(request.get_data(as_text=True))
