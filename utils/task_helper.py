@@ -4,7 +4,6 @@ import os
 import requests
 from google.cloud import tasks_v2
 
-from models.app_settings import AppSettings
 from utils.check_environment import is_local
 
 
@@ -17,13 +16,13 @@ def run_background_task(relative_path, payload, project=None, queue=None, locati
     else:
         # production
         if not project:
-            project = AppSettings.gc_project_name
+            project = os.environ.get("GOOGLE_CLOUD_PROJECT")  # this is a default environment variable on GAE
 
         if not queue:
             queue = "default"
 
         if not location:
-            location = AppSettings.gc_region
+            location = os.environ.get("MY_GAE_REGION")
 
         # make sure you have Cloud Tasks API enabled via the Google Cloud Console
         client = tasks_v2.CloudTasksClient()

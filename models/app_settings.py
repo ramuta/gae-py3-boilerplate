@@ -7,11 +7,6 @@ client = get_db()
 class AppSettings(ndb.Model):
     sendgrid_api_key = ndb.StringProperty(default="")
 
-    # static data (change into your real Google Cloud project data)
-    gc_project_name = "test"
-    gc_region = "europe-west1"  # if your region is europe-west, you need to 1 at the end (same for us-central1)
-    gc_url = "https://mysuper.webapp"
-
     @classmethod
     def get(cls):
         with client.context():

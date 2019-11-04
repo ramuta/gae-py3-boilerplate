@@ -5,10 +5,10 @@ A web application starter for Google App Engine Python 3 runtime.
 > **WORK IN PROGRESS:** This template is not completed yet.
 >
 > TODO:
-> - sendgrid
 > - registration system
 > - suspend user
-> - delete user
+> - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
+> - cron job to periodically delete users (this time permanently) that are marked as deleted=True
 > - edit password
 > - login with password
 > - translation system for email subjects
@@ -73,6 +73,17 @@ Then you can run the Datastore Viewer using this command:
 Datastore Viewer will run on [http://127.0.0.1:8082/](http://127.0.0.1:8082/). Enter `test` as the project name and 
 you'll see the data in your Datastore.
 
+## init
+
+You'll need to initialize the web app in order to make yourself the admin. You can do this by going to the `/init` URL 
+in this web app.
+
+### SendGrid
+
+At initialization you'll be required to enter a SendGrid API key. On localhost you can enter a fake API key (just a 
+random string) because you'll be able to read emails in the Terminal. But on production use the real API key. For this 
+you'll need to first create yourself a SendGrid account (their free tier would do).
+
 ## Background tasks
 
 Background tasks are done using Cloud Tasks. There's one example (sending emails) of how to do it in this project 
@@ -85,10 +96,16 @@ Whenever you'll want to create a background task, use this function from utils/t
 
     run_background_task(relative_path, payload)
 
-Make sure you have `gc_project_name` and `gc_region` set in `AppSettings`.
+Make sure you have environment variables `MY_GAE_REGION` and `MY_APP_URL` set in `app.yaml`.
 
 The task queues are set in `queue.yaml`. Currently two queues are set, `default` and `email`. If you need additional 
 ones, edit the `queue.yaml` file.
+
+P.S.: When you'll do a deployment to Google Cloud, you need to include all your yaml files in the command:
+
+    gcloud app deploy app.yaml queue.yaml --version production
+
+The same goes for other YAML files, such as `cron.yaml` or `index.yaml`, if you'll use them.
 
 ## Cron jobs
 
