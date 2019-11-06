@@ -4,4 +4,27 @@
 
 {% block content %}
 <h1>Registration</h1>
+
+<div class="row">
+    <div class="col-lg-6">
+        <form method="post">
+            <div class="form-group">
+                <label for="firstNameInput"></label>
+                <input type="text" class="form-control" id="firstNameInput" placeholder="Enter your first name" name="registration-first-name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastNameInput"></label>
+                <input type="text" class="form-control" id="lastNameInput" placeholder="Enter your last name" name="registration-last-name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="emailInput"></label>
+                <input type="email" class="form-control" id="emailInput" placeholder="Enter your email address" name="registration-email" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
 {% endblock content %}

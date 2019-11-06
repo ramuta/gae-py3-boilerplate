@@ -77,3 +77,23 @@ def validate_magic_login_link(token, **params):
 def register(**params):
     if request.method == "GET":
         return render_template_with_translations("public/auth/register.html", **params)
+
+    elif request.method == "POST":
+        email_address = request.form.get("registration-email")
+        first_name = request.form.get("registration-first-name")
+        last_name = request.form.get("registration-last-name")
+
+        if email_address and first_name and last_name:
+            success, user, message = User.create(email_address=email_address, first_name=first_name, last_name=last_name)
+
+            if success:
+                # send magic login link
+                success, message = User.send_magic_login_link(email_address=email_address)
+
+                if success:
+                    return render_template_with_translations("public/auth/register_success.html", **params)
+                else:
+                    return abort(403, description=message)
+            else:
+                params["register_error_message"] = message
+                return render_template_with_translations("public/auth/register_error.html", **params)

@@ -14,7 +14,7 @@ def client():
 
     # create User model and log it in
     # login is required for all handlers in this file
-    user = User.create(email_address="testman@test.man", password="test123")
+    success, user, message = User.create(email_address="testman@test.man", password="test123")
     session_token = User.generate_session_token(user=user)
     client.set_cookie(server_name="localhost", key="my-web-app-session", value=session_token)
 

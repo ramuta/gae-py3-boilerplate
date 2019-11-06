@@ -5,7 +5,6 @@ A web application starter for Google App Engine Python 3 runtime.
 > **WORK IN PROGRESS:** This template is not completed yet.
 >
 > TODO:
-> - registration system
 > - suspend user
 > - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
 > - cron job to periodically delete users (this time permanently) that are marked as deleted=True

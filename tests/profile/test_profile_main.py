@@ -14,7 +14,7 @@ def client():
 
     # create User model and log it in
     # login is required for all handlers in this file
-    user = User.create(email_address="testman@test.man", password="test123", email_address_verified=True)
+    success, user, message = User.create(email_address="testman@test.man", password="test123", email_address_verified=True)
     session_token = User.generate_session_token(user=user)
     client.set_cookie(server_name="localhost", key="my-web-app-session", value=session_token)
 
@@ -28,7 +28,6 @@ def cleanup():
 
 def test_profile_sessions(client):
     user = User.get_user_by_email(email_address="testman@test.man")
-    user.email_address_verified = True
     assert user is not None
 
     response = client.get('/profile')

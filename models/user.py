@@ -60,8 +60,9 @@ class User(ndb.Model):
 
     # class methods (ordered by alphabet)
     @classmethod
-    def create(cls, email_address, password=None, admin=False, email_address_verified=False):
-        if email_address_verified:
+    def create(cls, email_address, password=None, admin=False, email_address_verified=False, first_name=None,
+               last_name=None):
+        if email_address_verified:  # this is only needed for testing purposes
             if not is_local():
                 email_address_verified = False  # True should only be allowed on localhost, for testing purposes
 
@@ -76,11 +77,14 @@ class User(ndb.Model):
                     hashed = bcrypt.hashpw(password=str.encode(password), salt=bcrypt.gensalt(12))
 
                 # create the user object and store it into Datastore
-                user = cls(email_address=email_address, password_hash=hashed, admin=admin,
-                           email_address_verified=email_address_verified)
+                user = cls(email_address=email_address, password_hash=hashed, admin=admin, first_name=first_name,
+                           last_name=last_name, email_address_verified=email_address_verified)
                 user.put()
 
-            return user
+                return True, user, "Success"  # succes, user, message
+            else:
+                return False, user, "User with this email address is already registered. Please go to the " \
+                                    "Login page and try to log in."
 
     @classmethod
     def delete_session(cls, user, token_hash_five_chars):
@@ -152,34 +156,40 @@ class User(ndb.Model):
 
     @classmethod
     def get_user_by_session_token(cls, session_token):
+        """
+
+        :param session_token:
+        :return: success boolean (True/False), user object, message
+        """
         with client.context():
             token_hash = hashlib.sha256(str.encode(session_token)).hexdigest()
 
             user = cls.query(cls.sessions.token_hash == token_hash).get()
 
             if not user:
-                return None
+                return False, None, "A user with this session token does not exist. Try to log in again."
 
             if user.deleted:
                 logging.warning("Deleted user {} wanted to login.".format(user.email_address))
-                return None
+                return False, None, "This user has been deleted. Please contact website administrators for more info."
 
             if user.suspended:
                 logging.warning("Suspended user {} wanted to login.".format(user.email_address))
-                return None
+                return False, None, "This user has been suspended. Please contact website administrators for more info."
 
             if not user.email_address_verified:
                 logging.warning("User with unverified email address {} wanted to login.".format(user.email_address))
-                return None
+                return False, None, "This user's email address hasn't yet been verified. Please contact website " \
+                                    "administrators for more info."
 
             # important: you can't check for expiration in the cls.query() above, because it wouldn't only check the
             # expiration date of the session in question, but any expiration date which could give a false result
             for session in user.sessions:
                 if session.token_hash == token_hash:
                     if session.expired > datetime.datetime.now():
-                        return user
+                        return True, user, "Success"
 
-            return None
+            return False, None, "Unknown error."
 
     @classmethod
     def is_csrf_token_valid(cls, user, csrf_token):
@@ -228,7 +238,7 @@ class User(ndb.Model):
 
                 return True, "Success"
             else:
-                return False, "User with this email is not registered yet! Go to <a href='/register'>Registration</a>."
+                return False, "User with this email is not registered yet!"
 
     @classmethod
     def set_csrf_token(cls, user):

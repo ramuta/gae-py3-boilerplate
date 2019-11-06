@@ -41,10 +41,8 @@ def public_handler(func):
         params["now"] = datetime.datetime.now()  # send current date to handler and HTML template
 
         if session_token:
-            user = User.get_user_by_session_token(session_token=session_token)
+            success, user, message = User.get_user_by_session_token(session_token=session_token)
             params["user"] = user
-
-            # TODO: is session is not valid, delete the cookie
 
         return func(**params)
 
@@ -59,11 +57,13 @@ def login_required(func):
         session_token = request.cookies.get("my-web-app-session")
 
         if session_token:
-            user = User.get_user_by_session_token(session_token=session_token)
+            success, user, message = User.get_user_by_session_token(session_token=session_token)
             params["user"] = user
 
             if user:
                 return func(**params)
+            else:
+                return abort(403, description=message)
 
         return redirect(url_for("public.auth.login"))
 
@@ -78,14 +78,16 @@ def admin_required(func):
         params["now"] = datetime.datetime.now()  # send current date to handler and HTML template
 
         if session_token:
-            user = User.get_user_by_session_token(session_token=session_token)
+            success, user, message = User.get_user_by_session_token(session_token=session_token)
             params["user"] = user
 
             if user and user.admin:
                 return func(**params)
             elif user:
                 logging.error("Non-admin user {username} wanted to access an admin-only page.".format(username=user.username))
-                return abort(403)
+                return abort(403, description="I'm sorry, but this is for admins only.")
+            else:
+                return abort(403, description=message)
 
         return redirect(url_for("public.auth.login"))
 

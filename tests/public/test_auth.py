@@ -43,7 +43,35 @@ def test_init_post(client):
 
 def test_register_get(client):
     response = client.get('/register')
-    assert b'Registration' in response.data
+    assert b'Enter your email address' in response.data
+
+
+def test_register_post_success(client):
+    data = {"registration-first-name": "Testman", "registration-last-name": "Testovian",
+            "registration-email": "testman@test.man"}
+
+    response = client.post('/register', data=data, follow_redirects=True)
+
+    assert b'Registration successful' in response.data
+    assert b'Please verify your email address' in response.data
+
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user is not None
+
+
+def test_register_post_fail(client):
+    User.create(email_address="testman@test.man", password="test123")
+
+    data = {"registration-first-name": "Testman", "registration-last-name": "Testovian",
+            "registration-email": "testman@test.man"}
+
+    response = client.post('/register', data=data, follow_redirects=True)
+
+    assert b'Registration error' in response.data
+    assert b'User with this email address is already registered' in response.data
+
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user is not None
 
 
 def test_login_get(client):
@@ -53,7 +81,7 @@ def test_login_get(client):
 
 
 def test_login_post_success(client):
-    user = User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man", password="test123")
 
     data = {"login-email": "testman@test.man"}
     response = client.post('/login', data=data, follow_redirects=True)
@@ -62,7 +90,7 @@ def test_login_post_success(client):
 
 
 def test_login_post_fail(client):
-    user = User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man", password="test123")
 
     data = {"login-email": "testman23@test.man"}  # WRONG EMAIL!!!
     response = client.post('/login', data=data, follow_redirects=True)
