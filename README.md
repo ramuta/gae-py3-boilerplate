@@ -55,6 +55,26 @@ and then you can run tests in a separate Terminal tab:
     # windows
     set TESTING=yes && pytest -p no:warnings
 
+## IMPORTANT: auto reloading
+
+When you make a change in any Python file, the Flask app will automatically reload so that the changes are recognized.
+
+But unfortunately, this auto reloading only works for Python files, not for other files such as HTML, CSS, JS etc.
+
+So how to solve this problem?
+
+When you make a change in the HTML file, also make a simple space in the main.py file (or some other Python file). You 
+can make the space after this line:
+
+    app = Flask(__name__)
+
+The space itself is harmless and it will not hurt your web app. After you make it, save the changes (CTRL+S or CMD+S) 
+and the web app will automatically reload.
+
+You are able to see that the web app has reloaded if you see this line popping up in the terminal:
+
+     * Restarting with stat
+
 ## See the data in Datastore visually on localhost
 
 If you'd like to see what data are stored in the localhost Datastore emulator, install 
