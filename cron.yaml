@@ -1,0 +1,4 @@
+cron:
+- description: "remove users that were marked as deleted more than 30 days ago"
+  url: /cron/remove-deleted-users
+  schedule: third wednesday of month 09:00

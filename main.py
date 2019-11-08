@@ -1,5 +1,6 @@
 from flask import Flask
 
+from cron.remove_deleted_users import remove_deleted_users_cron
 from handlers.admin import users
 from handlers.public import main as public_main, auth
 from handlers.profile import main as profile_main
@@ -32,6 +33,8 @@ app.add_url_rule(rule="/admin/users", endpoint="admin.users.users_list", view_fu
 app.add_url_rule(rule="/admin/user/<user_id>", endpoint="admin.users.user_details", view_func=users.user_details,
                  methods=["GET"])
 
+# CRON JOBS
+app.add_url_rule(rule="/cron/remove-deleted-users", view_func=remove_deleted_users_cron, methods=["GET"])
 
 # TASKS
 app.add_url_rule(rule="/tasks/send-email", endpoint="tasks.send_email_task.send_email_via_sendgrid",

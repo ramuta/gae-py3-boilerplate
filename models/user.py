@@ -52,6 +52,7 @@ class User(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
     deleted = ndb.BooleanProperty(default=False)
+    deleted_date = ndb.DateTimeProperty()  # note that if the object gets "un-deleted", this date will stay here
 
     # properties (ordered by alphabet)
     @property
@@ -60,12 +61,7 @@ class User(ndb.Model):
 
     # class methods (ordered by alphabet)
     @classmethod
-    def create(cls, email_address, password=None, admin=False, email_address_verified=False, first_name=None,
-               last_name=None):
-        if email_address_verified:  # this is only needed for testing purposes
-            if not is_local():
-                email_address_verified = False  # True should only be allowed on localhost, for testing purposes
-
+    def create(cls, email_address, password=None, admin=False, first_name=None, last_name=None):
         with client.context():
             # check if there's any user with the same email address already
             user = cls.query(cls.email_address == email_address).get()
@@ -78,7 +74,7 @@ class User(ndb.Model):
 
                 # create the user object and store it into Datastore
                 user = cls(email_address=email_address, password_hash=hashed, admin=admin, first_name=first_name,
-                           last_name=last_name, email_address_verified=email_address_verified)
+                           last_name=last_name)
                 user.put()
 
                 return True, user, "Success"  # succes, user, message
@@ -100,6 +96,18 @@ class User(ndb.Model):
             user.put()
 
         return user
+
+    @classmethod
+    def delete(cls, user, permanently=False):
+        with client.context():
+            if permanently:
+                user.key.delete()  # this deletes user from Datastore
+            else:
+                user.deleted = True  # this does NOT delete user from Datastore (just marks it as "deleted")
+                user.deleted_date = datetime.datetime.now()
+                user.put()
+
+        return True
 
     @classmethod
     def fetch(cls, email_address_verified=True, suspended=False, deleted=False, limit=None):
@@ -220,6 +228,16 @@ class User(ndb.Model):
                 return False
 
     @classmethod
+    def permanently_batch_delete(cls):
+        # Permanently delete users that were marked as deleted=True more than 30 days ago
+        with client.context():
+            users_keys = cls.query(cls.deleted == True,
+                                   cls.deleted_date < (datetime.datetime.now() - datetime.timedelta(days=30))).fetch(keys_only=True)
+
+            ndb.delete_multi(keys=users_keys)
+            return True
+
+    @classmethod
     def send_magic_login_link(cls, email_address):
         with client.context():
             # generate magic link token and its hash
@@ -288,3 +306,29 @@ class User(ndb.Model):
             else:
                 # if error, return False and message describing the problem
                 return False, "The magic link is not valid or is expired. Please request a new one."
+
+    # METHODS FOR TESTING PURPOSES ONLY!
+    @classmethod
+    def _test_mark_email_verified(cls, user):
+        """
+        FOR TESTING PURPOSES ONLY!
+        :param user:
+        :return:
+        """
+        with client.context():
+            if is_local():
+                user.email_address_verified = True
+                user.put()
+
+    @classmethod
+    def _test_change_deleted_date(cls, user, new_date):
+        """
+        FOR TESTING PURPOSES ONLY!
+        :param user:
+        :param new_date:
+        :return:
+        """
+        with client.context():
+            if is_local():
+                user.deleted_date = new_date
+                user.put()
