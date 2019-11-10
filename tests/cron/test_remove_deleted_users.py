@@ -33,12 +33,12 @@ def test_remove_deleted_users(client):
     assert user is not None
     assert user.deleted == True
 
-    deleted_users_list_1 = User.fetch(deleted=True)
+    deleted_users_list_1, next_cursor, more = User.fetch(deleted=True)
     assert len(deleted_users_list_1) == 1
 
     # run the cron job
     response = client.get('/cron/remove-deleted-users')
 
     # assert user is really deleted
-    deleted_users_list_2 = User.fetch(deleted=True)
+    deleted_users_list_2, next_cursor, more = User.fetch(deleted=True)
     assert len(deleted_users_list_2) == 0

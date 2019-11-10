@@ -110,13 +110,18 @@ class User(ndb.Model):
         return True
 
     @classmethod
-    def fetch(cls, email_address_verified=True, suspended=False, deleted=False, limit=None):
+    def fetch(cls, email_address_verified=True, suspended=False, deleted=False, limit=None, cursor=None):
         with client.context():
-            users = cls.query(cls.email_address_verified == email_address_verified,
-                              cls.suspended == suspended,
-                              cls.deleted == deleted).fetch(limit=limit)
+            users, next_cursor, more = cls.query(cls.email_address_verified == email_address_verified,
+                                                 cls.suspended == suspended,
+                                                 cls.deleted == deleted).fetch_page(limit, start_cursor=cursor)
 
-            return users
+            # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor is
+            # the same as the cursor
+            if len(users) < limit:
+                return users, None, False
+
+            return users, next_cursor.urlsafe().decode(), more
 
     @classmethod
     def generate_session_token(cls, user, request=None):

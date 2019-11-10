@@ -97,6 +97,11 @@ you'll see the data in your Datastore.
 You'll need to initialize the web app in order to make yourself the admin. You can do this by going to the `/init` URL 
 in this web app.
 
+### Load fake data
+
+On local host you can run the `http://localhost:8080/load-fake-data` URL in order to load some faka data into the 
+web app, so you can try it out on localhost. But do this **after** you run **/init**.
+
 ### SendGrid
 
 At initialization you'll be required to enter a SendGrid API key. On localhost you can enter a fake API key (just a 

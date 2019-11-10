@@ -2,12 +2,47 @@
 
 {% block title %}Users{% endblock title %}
 
-{% block content %}
-<h1>Users</h1>
+{% block scripts %}
+<script src="/static/custom/js/admin-load-more-users.js"></script>
+{% endblock scripts %}
 
-<ul>
-    {% for some_user in users %}
-    <li><a href="{{ url_for('admin.users.user_details', user_id=some_user.get_id) }}">{{ some_user.email_address }}</a></li>
-    {% endfor %}
-</ul>
+{% block content %}
+<h1>Active users</h1>
+
+<div class="table-responsive">
+    <table class="table table-dark mt-4" id="users-table">
+        <tr>
+            <th>User</th>
+            <th>Email address</th>
+            <th>Created</th>
+            <th>Status</th>
+        </tr>
+
+
+        {% for some_user in users %}
+        <tr>
+            <td>
+                <a href="{{ url_for('admin.users.user_details', user_id=some_user.get_id) }}">
+                {{ some_user.first_name }} {{ some_user.last_name }}
+                </a>
+            </td>
+            <td>{{ some_user.email_address }}</td>
+            <td>{{some_user.created.strftime("%d %b %Y")}}</td>
+            <td>
+                {% if some_user.admin %}
+                <span class="badge badge-warning">Admin</span>
+                {% else %}
+                <span class="badge badge-info">User</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {{cursor}}
+
+    {% if more %}
+        <button id="loadMoreUsersButton" class="btn btn-primary" onclick="adminLoadMoreUsers('{{next_cursor}}')">Load more users</button>
+    {% endif %}
+</div>
 {% endblock content %}
