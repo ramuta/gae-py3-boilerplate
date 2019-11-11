@@ -15,7 +15,7 @@ def users_list(**params):
     else:
         cursor = None
 
-    params["users"], params["next_cursor"], params["more"] = User.fetch(limit=3, cursor=cursor)
+    params["users"], params["next_cursor"], params["more"] = User.fetch(limit=10, cursor=cursor)
 
     if not cursor_arg:
         # normal browser get request

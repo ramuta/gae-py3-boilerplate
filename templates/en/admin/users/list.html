@@ -1,4 +1,4 @@
-{% extends lang+"/base.html" %}
+{% extends lang+"/admin/base.html" %}
 
 {% block title %}Users{% endblock title %}
 
@@ -10,14 +10,15 @@
 <h1>Active users</h1>
 
 <div class="table-responsive">
-    <table class="table table-dark mt-4" id="users-table">
-        <tr>
-            <th>User</th>
-            <th>Email address</th>
-            <th>Created</th>
-            <th>Status</th>
-        </tr>
-
+    <table class="table mt-4" id="users-table">
+        <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th>Email address</th>
+                <th>Created</th>
+                <th>Status</th>
+            </tr>
+        </thead>
 
         {% for some_user in users %}
         <tr>
@@ -42,7 +43,7 @@
     {{cursor}}
 
     {% if more %}
-        <button id="loadMoreUsersButton" class="btn btn-primary" onclick="adminLoadMoreUsers('{{next_cursor}}')">Load more users</button>
+        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}')">Load more users</button>
     {% endif %}
 </div>
 {% endblock content %}

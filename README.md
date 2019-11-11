@@ -2,9 +2,10 @@
 
 A web application starter for Google App Engine Python 3 runtime.
 
-> **WORK IN PROGRESS:** This template is not completed yet.
+> **WORK IN PROGRESS:**
 >
 > TODO:
+> - logout user (delete cookie)
 > - suspend user
 > - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
 > - edit password
