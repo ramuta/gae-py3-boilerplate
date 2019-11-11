@@ -33,7 +33,7 @@ A web application starter for Google App Engine Python 3 runtime.
 - [Web app initialization (important!)](docs/init.md)
 - [Load fake data (for localhost usage)](docs/load-fake-data.md)
 - [How to run tests](docs/tests.md)
-- [Decorators]()
+- [Decorators](docs/decorators.md)
 - [Handlers: how to create and use them (controllers/views)](docs/handlers.md)
 - [Translation system](docs/translations.md)
 - [See the data in Datastore visually on localhost](docs/datastore-visually-localhost.md)
@@ -43,10 +43,11 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
+- translation system for email subjects
 - suspend user
 - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
 - edit password
 - login with password
-- translation system for email subjects
+- Admin: update SendGrid key
 - Slovene translations (all HTML templates)
 - Documentation
