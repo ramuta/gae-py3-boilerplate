@@ -2,8 +2,10 @@
 
 A web application starter for Google App Engine Python 3 runtime.
 
-> **WORK IN PROGRESS:**
->
+## Documentation
+
+See the detailed documentation index here: _[docs index](docs/index.md)_
+
 > TODO:
 > - logout user (delete cookie)
 > - suspend user
@@ -21,6 +23,8 @@ A web application starter for Google App Engine Python 3 runtime.
 - **Translations:**
   - In-built simple translation system
   - Each language has its own templates folder
+- **Emailing system**: via SendGrid
+- **Various access levels:** public, basic user, admin. Other levels can be easily added using decorators.
 
 ## How to run the web app using run.py
 
