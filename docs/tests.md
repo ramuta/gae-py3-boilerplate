@@ -50,3 +50,7 @@ def test_contact(client):
     
     assert b'Thank you for contacting us!' in response.data
 ```
+
+## Links:
+
+- [Index](/README.md#documentation)

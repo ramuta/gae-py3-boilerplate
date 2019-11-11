@@ -1,5 +1,3 @@
-_[back to index](index.md)_
-
 # How to create and use handlers
 
 > Some people call handlers "controllers" or even "views". Here, we'll refer to them as handlers.
@@ -50,3 +48,6 @@ def hello(**params):
 so we can enable [translations](/docs/translations.md), but if you don't want to use the translation system, you can 
 use `render_template()` instead.
 
+## Links:
+
+- [Index](/README.md#documentation)
