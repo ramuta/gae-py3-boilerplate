@@ -7,7 +7,6 @@ A web application starter for Google App Engine Python 3 runtime.
 See the detailed documentation index here: _[docs index](docs/index.md)_
 
 > TODO:
-> - logout user (delete cookie)
 > - suspend user
 > - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
 > - edit password

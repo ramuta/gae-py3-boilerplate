@@ -2,6 +2,7 @@ from flask import Flask
 
 from cron.remove_deleted_users import remove_deleted_users_cron
 from handlers.admin import users
+from handlers.profile.auth import logout
 from handlers.public import main as public_main, auth
 from handlers.profile import main as profile_main
 from tasks.send_email_task import send_email_via_sendgrid
@@ -27,6 +28,9 @@ app.add_url_rule(rule="/profile", endpoint="profile.main.sessions_list", view_fu
                  methods=["GET"])
 app.add_url_rule(rule="/profile/session/delete", endpoint="profile.main.session_delete",
                  view_func=profile_main.session_delete, methods=["POST"])
+
+# PROFILE auth
+app.add_url_rule(rule="/logout", endpoint="profile.auth.logout", view_func=logout, methods=["POST"])
 
 
 # ADMIN URLS
