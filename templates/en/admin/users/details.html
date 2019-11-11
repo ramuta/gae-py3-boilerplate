@@ -3,5 +3,24 @@
 {% block title %}User details{% endblock title %}
 
 {% block content %}
-<h1>{{ selected_user.email_address }}</h1>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.users.users_list') }}">Users</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ selected_user.first_name }} {{ selected_user.last_name }}</li>
+  </ol>
+</nav>
+
+<div class="card text-white bg-info mb-3">
+  <div class="card-header">User details</div>
+  <div class="card-body">
+    <h5 class="card-title">{{ selected_user.first_name }} {{ selected_user.last_name }}</h5>
+    <p class="card-text">
+        <ul>
+            <li><strong>Email:</strong> {{selected_user.email_address}}</li>
+            <li><strong>Admin:</strong> {{selected_user.admin}}</li>
+            <li><strong>Created:</strong> {{selected_user.created}}</li>
+        </ul>
+    </p>
+  </div>
+</div>
 {% endblock content %}

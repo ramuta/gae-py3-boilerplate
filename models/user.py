@@ -118,10 +118,13 @@ class User(ndb.Model):
 
             # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor is
             # the same as the cursor
-            if len(users) < limit:
+            if limit and len(users) < limit:
                 return users, None, False
 
-            return users, next_cursor.urlsafe().decode(), more
+            try:
+                return users, next_cursor.urlsafe().decode(), more
+            except AttributeError as e:  # if there's no next_cursor, an AttributeError will occur
+                return users, None, False
 
     @classmethod
     def generate_session_token(cls, user, request=None):
