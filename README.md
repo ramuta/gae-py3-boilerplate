@@ -2,6 +2,8 @@
 
 A web application starter for Google App Engine Python 3 runtime.
 
+> If you like this project, please **star it**! ;) 
+
 ## Features
 
 - **Different types of authentication system:**
@@ -17,6 +19,13 @@ A web application starter for Google App Engine Python 3 runtime.
 - **Cron jobs**
 - **Datastore**: NoSQL database with a very generous free tier and great scalability.
 - **Tests**
+
+## Quickstart
+
+1. **Run** the web app using `run.py` ([instructions](docs/run-web-app.md)).
+2. **Initialize** the web app via `http://localhost:8080/init`. You can enter fake SendGrid key in the beginning ([instructions](docs/init.md)).
+3. **Login** with your email and find the magic login link in the Terminal (in the printed email message). Click on the link and you'll be logged in.
+4. **Explore** the web app: `/profile`, `/admin/users` etc.
 
 ## Documentation
 
