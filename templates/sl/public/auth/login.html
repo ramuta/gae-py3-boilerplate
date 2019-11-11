@@ -1,0 +1,35 @@
+{% extends lang+"/public/base.html" %}
+
+{% block title %}Prijava{% endblock title %}
+
+{% block content %}
+<h1>Prijava</h1>
+
+<div class="row">
+    <div class="col-lg-6">
+        <form method="post">
+            <div class="form-group">
+                <label for="emailInput">Log in by entering your email address below. After you click submit, you'll receive an email with a link that will
+    automatically log you in.</label>
+                <input type="email" class="form-control" id="emailInput" placeholder="Enter your email address" name="login-email" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <small>
+            Alternatively, login <a href="{{ url_for('public.auth.login_password') }}">with password here</a>.
+        </small>
+
+        <br>
+
+        <small>
+            If you don't have an account yet, <a href="{{ url_for('public.auth.register') }}">register here</a>.
+        </small>
+    </div>
+</div>
+{% endblock content %}

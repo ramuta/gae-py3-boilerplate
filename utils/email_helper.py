@@ -10,13 +10,13 @@ from utils.translations import render_template_with_translations
 def send_email(recipient_email, email_template, email_params, email_subject, sender_email=None, unsubscribe_group=None,
                attachment_content_b64=None, attachment_filename=None, attachment_filetype=None):
     if not sender_email:
-        sender_email = os.environ.get("MY_APP_EMAIL")
+        sender_email = os.environ.get("MY_APP_EMAIL")  # set this in app.yaml
 
     # send web app URL data by default to every email template
     if is_local():
         email_params["app_root_url"] = "http://localhost:8080"
     else:
-        email_params["app_root_url"] = os.environ.get("MY_APP_URL")
+        email_params["app_root_url"] = os.environ.get("MY_APP_URL")  # set this in app.yaml
 
     # render the email HTML body
     email_body = render_template_with_translations(email_template, **email_params)

@@ -13,3 +13,13 @@ def render_template_with_translations(path, **params):
 
     params["lang"] = lang
     return render_template("{0}/{1}".format(lang, path), **params)
+
+
+def get_locale():
+    # get the language that the user currently uses on the website
+    lang = request.cookies.get("web-app-lang")
+
+    if not lang:
+        lang = "en"
+
+    return lang

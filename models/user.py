@@ -7,6 +7,7 @@ from operator import attrgetter
 import bcrypt
 from google.cloud import ndb
 from models import get_db
+from translations.loader import get_translation
 from utils.check_environment import is_local
 from utils.email_helper import send_email
 
@@ -246,7 +247,7 @@ class User(ndb.Model):
             return True
 
     @classmethod
-    def send_magic_login_link(cls, email_address):
+    def send_magic_login_link(cls, email_address, locale="en"):
         with client.context():
             # generate magic link token and its hash
             token = secrets.token_hex()
@@ -260,7 +261,9 @@ class User(ndb.Model):
 
                 # send email with magic link to user
                 send_email(recipient_email=email_address, email_template="emails/login-magic-link.html",
-                           email_params={"magic_login_token": token}, email_subject="Here is your magic login link")
+                           email_params={"magic_login_token": token},
+                           email_subject=get_translation(locale=locale,
+                                                         translation_function="magic_link_email_subject"))
 
                 return True, "Success"
             else:

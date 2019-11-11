@@ -1,0 +1,14 @@
+{% extends lang+"/emails/base.html" %}
+
+{% block preheader %}Login via this magic link.{% endblock preheader %}
+
+{% block message %}
+<p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+    Hi there,
+</p>
+
+<p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+    You've requested a magic login link. Here it is:
+    <a href="{{app_root_url}}/magic-login-token/{{magic_login_token}}">CLICK HERE TO LOGIN</a>
+</p>
+{% endblock message %}

@@ -43,7 +43,6 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
-- translation system for email subjects
 - suspend user
 - delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
 - edit password

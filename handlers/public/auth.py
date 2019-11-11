@@ -4,7 +4,7 @@ from models.app_settings import AppSettings
 from models.user import User
 from utils.check_environment import is_local
 from utils.decorators import public_handler
-from utils.translations import render_template_with_translations
+from utils.translations import render_template_with_translations, get_locale
 
 
 @public_handler
@@ -41,7 +41,8 @@ def login(**params):
     elif request.method == "POST":
         email_address = request.form.get("login-email")
 
-        success, message = User.send_magic_login_link(email_address=email_address)
+        locale = get_locale()  # get the language that the user currently uses on the website
+        success, message = User.send_magic_login_link(email_address=email_address, locale=locale)
 
         if success:
             return render_template_with_translations("public/auth/login-magic-link-sent.html", **params)
@@ -88,7 +89,8 @@ def register(**params):
 
             if success:
                 # send magic login link
-                success, message = User.send_magic_login_link(email_address=email_address)
+                locale = get_locale()  # get the language that the user currently uses on the website
+                success, message = User.send_magic_login_link(email_address=email_address, locale=locale)
 
                 if success:
                     return render_template_with_translations("public/auth/register_success.html", **params)
