@@ -20,9 +20,9 @@ class AppSettings(ndb.Model):
 
     @classmethod
     def update(cls, sendgrid_api_key=None):
-        with client.context():
-            app_settings = cls.get()
+        app_settings = cls.get()
 
+        with client.context():
             if sendgrid_api_key:
                 app_settings.sendgrid_api_key = sendgrid_api_key
 
