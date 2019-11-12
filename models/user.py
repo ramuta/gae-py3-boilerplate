@@ -119,8 +119,15 @@ class User(ndb.Model):
 
             # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor is
             # the same as the cursor
+            logging.warning("More:")
+            logging.warning(more)
+            logging.warning(type(more))
             if limit and len(users) < limit:
                 return users, None, False
+
+            logging.warning("More 2:")
+            logging.warning(more)
+            logging.warning(type(more))
 
             try:
                 return users, next_cursor.urlsafe().decode(), more
@@ -248,12 +255,12 @@ class User(ndb.Model):
 
     @classmethod
     def send_magic_login_link(cls, email_address, locale="en"):
+        # generate magic link token and its hash
+        token = secrets.token_hex()
+
+        user = cls.get_user_by_email(email_address=email_address)
+
         with client.context():
-            # generate magic link token and its hash
-            token = secrets.token_hex()
-
-            user = cls.get_user_by_email(email_address=email_address)
-
             if user:
                 user.magic_link_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
                 user.magic_link_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
@@ -297,6 +304,8 @@ class User(ndb.Model):
 
     @classmethod
     def validate_magic_login_token(cls, magic_token, request=None):
+        user = None
+
         with client.context():
             # convert token to hash
             magic_link_token_hash = hashlib.sha256(str.encode(magic_token)).hexdigest()
@@ -308,15 +317,19 @@ class User(ndb.Model):
             if user and user.magic_link_token_expired > datetime.datetime.now():
                 # if email_address is not verified yet, mark it as verified
                 user.email_address_verified = True
-
-                # create session
-                session_token = cls.generate_session_token(user=user, request=request)
-
-                # return True and session token for storing into cookie (in handler)
-                return True, session_token
+                user.magic_link_token_expired = datetime.datetime.now()  # make the token expired
+                user.put()
             else:
                 # if error, return False and message describing the problem
                 return False, "The magic link is not valid or is expired. Please request a new one."
+
+        # create session (this must be outside the "with client.context()", because context is already created in the
+        # generate_session_token() method)
+        session_token = cls.generate_session_token(user=user, request=request)
+
+        # return True and session token for storing into cookie (in handler)
+        return True, session_token
+
 
     # METHODS FOR TESTING PURPOSES ONLY!
     @classmethod
