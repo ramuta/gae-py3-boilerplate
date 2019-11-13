@@ -117,17 +117,11 @@ class User(ndb.Model):
                                                  cls.suspended == suspended,
                                                  cls.deleted == deleted).fetch_page(limit, start_cursor=cursor)
 
-            # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor is
-            # the same as the cursor
-            logging.warning("More:")
-            logging.warning(more)
-            logging.warning(type(more))
-            if limit and len(users) < limit:
-                return users, None, False
-
-            logging.warning("More 2:")
-            logging.warning(more)
-            logging.warning(type(more))
+            if is_local():
+                # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor
+                # is the same as the cursor. This happens on localhost only.
+                if limit and len(users) < limit:
+                    return users, None, False
 
             try:
                 return users, next_cursor.urlsafe().decode(), more
