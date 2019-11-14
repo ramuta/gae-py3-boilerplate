@@ -53,5 +53,4 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## Known issues
 
-- One of the libraries in the `requirements.txt` depends on the `grpcio` package which fails to install on the 
-Python 3.8, Windows 10 environment. More info [here](https://github.com/grpc/grpc/issues/20831).
+- One of the libraries in the `requirements.txt` depends on the `grpcio` package which fails to install on the Python 3.8, Windows 10 environment. More info [here](https://github.com/grpc/grpc/issues/20831). The solution is to downgrade to Python 3.7. 
