@@ -50,3 +50,8 @@ A web application starter for Google App Engine Python 3 runtime.
 - Admin: update SendGrid key
 - Slovene translations (all HTML templates)
 - Documentation
+
+## Known issues
+
+- One of the libraries in the `requirements.txt` depends on the `grpcio` package which fails to install on the 
+Python 3.8, Windows 10 environment. More info [here](https://github.com/grpc/grpc/issues/20831).
