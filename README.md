@@ -29,6 +29,7 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## Documentation
 
+- [Set up local development environment](docs/environment.md)
 - [How to run the web app](docs/run-web-app.md)
 - [Web app initialization (important!)](docs/init.md)
 - [Load fake data (for localhost usage)](docs/load-fake-data.md)
