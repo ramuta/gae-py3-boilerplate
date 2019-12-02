@@ -1,3 +1,9 @@
+# MacOS
+.DS_Store
+
+# PyCharm / JetBrains
+.idea/
+
 # Datastore Emulator
 WEB-INF/
 env.yaml
