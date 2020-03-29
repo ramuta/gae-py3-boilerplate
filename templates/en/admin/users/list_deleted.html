@@ -1,0 +1,50 @@
+{% extends lang+"/admin/base.html" %}
+
+{% block title %}Deleted users{% endblock title %}
+
+{% block scripts %}
+<script src="/static/custom/js/admin-load-more-users.js"></script>
+{% endblock scripts %}
+
+{% block content %}
+<h1>Deleted users</h1>
+
+<div class="table-responsive">
+    <table class="table mt-4" id="users-table">
+        <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th>Email address</th>
+                <th>Created</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        {% for some_user in users %}
+        <tr>
+            <td>
+                <a href="{{ url_for('admin.users.user_details', user_id=some_user.get_id) }}">
+                {{ some_user.first_name }} {{ some_user.last_name }}
+                </a>
+            </td>
+            <td>{{ some_user.email_address }}</td>
+            <td>{{some_user.created.strftime("%d %b %Y")}}</td>
+            <td>
+                {% if some_user.admin %}
+                <span class="badge badge-warning">Admin</span>
+                {% else %}
+                <span class="badge badge-info">User</span>
+                {% endif %}
+                <span class="badge badge-danger">Deleted</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {{cursor}}
+
+    {% if more %}
+        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}')">Load more deleted users</button>
+    {% endif %}
+</div>
+{% endblock content %}

@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('admin.users.users_list') }}">Users</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ selected_user.first_name }} {{ selected_user.last_name }}</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ selected_user.get_full_name }}</li>
   </ol>
 </nav>
 
@@ -15,7 +15,12 @@
         <h6 class="m-0 font-weight-bold text-primary">User details</h6>
     </div>
     <div class="card-body">
-        <h5 class="card-title">{{ selected_user.first_name }} {{ selected_user.last_name }}</h5>
+        <h5 class="card-title">
+            {{ selected_user.get_full_name }}
+
+            {% if selected_user.deleted %}<span class="badge badge-danger">Deleted</span>{% endif %}
+        </h5>
+
         <ul class="card-text">
             <li><strong>Email:</strong> {{selected_user.email_address}}</li>
             <li><strong>Admin:</strong> {{selected_user.admin}}</li>
@@ -23,6 +28,37 @@
         </ul>
 
         <a href="{{ url_for('admin.users.user_edit_get', user_id=selected_user.get_id) }}" class="btn btn-warning btn-sm">Edit user</a>
+        {% if not selected_user.deleted %}
+        <a href="#" data-toggle="modal" data-target="#deleteUserModal" class="btn btn-danger btn-sm">Delete user</a>
+        {% endif %}
     </div>
 </div>
+
+{% if not selected_user.deleted %}
+<!-- Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Delete {{ selected_user.get_full_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{{ url_for('admin.users.user_delete', user_id=selected_user.get_id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+
+                <div class="modal-body">
+                    Do you really want to delete user {{ selected_user.get_full_name }} ({{ selected_user.email_address }})?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete user</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock content %}
