@@ -57,3 +57,21 @@ def test_admin_user_details(client):
 
     assert b'testman@test.man' in response.data
     assert b'Admin' in response.data
+
+
+def test_admin_user_edit(client):
+    user = User.get_user_by_email(email_address="testman@test.man")
+
+    # GET
+    response_get = client.get('/admin/user/{}/edit'.format(user.get_id))
+    assert b'Edit' in response_get.data
+    assert b'Testing Person' not in response_get.data
+
+    # POST
+    params = {
+        "csrf": User.set_csrf_token(user=user),
+        "first-name": "Testing",
+        "last-name": "Person",
+    }
+    response_post = client.post('/admin/user/{}/edit'.format(user.get_id), data=params, follow_redirects=True)
+    assert b'Testing Person' in response_post.data

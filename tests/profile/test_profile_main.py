@@ -37,3 +37,18 @@ def test_profile_sessions(client):
     assert b'Delete' in response.data  # if there's at least one session on the list, there's also a Delete button
     # check if session token hash (first five chars) is in the sessions list (as session ID)
     assert str.encode("{}".format(user.sessions[0].token_hash[:5])) in response.data
+
+
+def test_profile_session_delete(client):
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user is not None
+
+    params = {
+        "csrf": User.set_csrf_token(user=user),
+        "delete-session-token": user.sessions[0].token_hash[:5],  # send the last 5 digits of the session token hash
+    }
+
+    response = client.post('/profile/session/delete', data=params, follow_redirects=True)
+
+    user = User.get_user_by_email(email_address="testman@test.man")  # needs to be called again due to Datastore context
+    assert user.sessions == []
