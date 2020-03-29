@@ -57,6 +57,10 @@ class User(ndb.Model):
 
     # properties (ordered by alphabet)
     @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
     def get_id(self):
         return self.key.id()
 
@@ -107,6 +111,23 @@ class User(ndb.Model):
                 user.deleted = True  # this does NOT delete user from Datastore (just marks it as "deleted")
                 user.deleted_date = datetime.datetime.now()
                 user.put()
+
+        return True
+
+    @classmethod
+    def edit(cls, user, first_name=None, last_name=None, email_address=None):
+        with client.context():
+            if first_name:
+                user.first_name = first_name
+
+            if last_name:
+                user.last_name = last_name
+
+            if email_address:
+                # consider also setting email_address_verified to False here and making user to verify the new email
+                user.email_address = email_address
+
+            user.put()
 
         return True
 

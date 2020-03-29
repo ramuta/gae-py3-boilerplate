@@ -46,7 +46,7 @@ A web application starter for Google App Engine Python 3 runtime.
 
 - Admin: suspend user
 - Admin: delete user (marking user as deleted=True - this does not really delete the user from the Datastore)
-- Admin: edit user
+- Clean all entriesn(bleach?)
 - Profile: edit password
 - login with password
 - Admin: update SendGrid key

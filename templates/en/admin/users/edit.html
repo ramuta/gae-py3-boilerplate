@@ -1,0 +1,45 @@
+{% extends lang+"/admin/base.html" %}
+
+{% block title %}Edit user{% endblock title %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.users.users_list') }}">Users</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.users.user_details', user_id=selected_user.get_id) }}">{{ selected_user.get_full_name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Edit {{selected_user.get_full_name}} ({{selected_user.email_address}})</h6>
+    </div>
+
+    <div class="card-body">
+        <ul class="card-text">
+
+            <form method="post" action="{{ url_for('admin.users.user_edit_post', user_id=selected_user.get_id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="firstNameField">First name</label>
+                            <input type="text" name="first-name" class="form-control" id="firstNameField" value="{{selected_user.first_name}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastNameField">Last name</label>
+                            <input type="text" name="last-name" class="form-control" id="lastNameField" value="{{selected_user.last_name}}">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+
+        </ul>
+    </div>
+</div>
+{% endblock content %}

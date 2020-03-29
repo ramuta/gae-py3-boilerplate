@@ -21,6 +21,8 @@
             <li><strong>Admin:</strong> {{selected_user.admin}}</li>
             <li><strong>Created:</strong> {{selected_user.created}}</li>
         </ul>
+
+        <a href="{{ url_for('admin.users.user_edit_get', user_id=selected_user.get_id) }}" class="btn btn-warning btn-sm">Edit user</a>
     </div>
 </div>
 {% endblock content %}

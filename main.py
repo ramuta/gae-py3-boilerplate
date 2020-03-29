@@ -38,6 +38,10 @@ app.add_url_rule(rule="/admin/users", endpoint="admin.users.users_list", view_fu
                  methods=["GET", "POST"])
 app.add_url_rule(rule="/admin/user/<user_id>", endpoint="admin.users.user_details", view_func=users.user_details,
                  methods=["GET"])
+app.add_url_rule(rule="/admin/user/<user_id>/edit", endpoint="admin.users.user_edit_get", view_func=users.user_edit_get,
+                 methods=["GET"])
+app.add_url_rule(rule="/admin/user/<user_id>/edit", endpoint="admin.users.user_edit_post", view_func=users.user_edit_post,
+                 methods=["POST"])
 
 # CRON JOBS
 app.add_url_rule(rule="/cron/remove-deleted-users", view_func=remove_deleted_users_cron, methods=["GET"])

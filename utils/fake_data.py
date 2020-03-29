@@ -22,7 +22,7 @@ def load_fake_data():
         result, user_13, message = User.create(email_address="user_{}@my.webapp".format(13), admin=False, first_name="Matt", last_name="Morata")
         result, user_14, message = User.create(email_address="user_{}@my.webapp".format(14), admin=False, first_name="Nika", last_name="Norante")
         result, user_15, message = User.create(email_address="user_{}@my.webapp".format(15), admin=False, first_name="Omar", last_name="Orange")
-        result, user_16, message = User.create(email_address="user_{}@my.webapp".format(15), admin=False, first_name="Peter", last_name="Pan")
+        result, user_16, message = User.create(email_address="user_{}@my.webapp".format(16), admin=False, first_name="Peter", last_name="Pan")
 
         # mark most of emails as verified
         User._test_mark_email_verified(user=user_1)

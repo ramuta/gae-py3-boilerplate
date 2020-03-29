@@ -1,8 +1,8 @@
 import json
-from flask import request
+from flask import request, redirect, url_for
 from google.cloud.ndb import Cursor
 from models.user import User
-from utils.decorators import admin_required
+from utils.decorators import admin_required, set_csrf, validate_csrf
 from utils.translations import render_template_with_translations
 
 
@@ -35,3 +35,23 @@ def users_list(**params):
 def user_details(user_id, **params):
     params["selected_user"] = User.get_user_by_id(user_id)
     return render_template_with_translations("admin/users/details.html", **params)
+
+
+@admin_required
+@set_csrf
+def user_edit_get(user_id, **params):
+    params["selected_user"] = User.get_user_by_id(user_id)
+    return render_template_with_translations("admin/users/edit.html", **params)
+
+
+@admin_required
+@validate_csrf
+def user_edit_post(user_id, **params):
+    selected_user = User.get_user_by_id(user_id)
+
+    first_name = request.form.get("first-name")
+    last_name = request.form.get("last-name")
+
+    User.edit(user=selected_user, first_name=first_name, last_name=last_name)
+
+    return redirect(url_for("admin.users.user_details", user_id=selected_user.get_id))
