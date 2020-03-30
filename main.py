@@ -34,18 +34,26 @@ app.add_url_rule(rule="/logout", endpoint="profile.auth.logout", view_func=logou
 
 
 # ADMIN URLS
-app.add_url_rule(rule="/admin/user/<user_id>/delete", endpoint="admin.users.user_delete", view_func=users.user_delete,
-                 methods=["POST"])
+
+# user
+app.add_url_rule(rule="/admin/user/<user_id>/delete-toggle", endpoint="admin.users.user_delete_toggle",
+                 view_func=users.user_delete_toggle, methods=["POST"])
 app.add_url_rule(rule="/admin/user/<user_id>", endpoint="admin.users.user_details", view_func=users.user_details,
                  methods=["GET"])
 app.add_url_rule(rule="/admin/user/<user_id>/edit", endpoint="admin.users.user_edit_get", view_func=users.user_edit_get,
                  methods=["GET"])
-app.add_url_rule(rule="/admin/user/<user_id>/edit", endpoint="admin.users.user_edit_post", view_func=users.user_edit_post,
-                 methods=["POST"])
+app.add_url_rule(rule="/admin/user/<user_id>/edit", endpoint="admin.users.user_edit_post",
+                 view_func=users.user_edit_post, methods=["POST"])
+app.add_url_rule(rule="/admin/user/<user_id>/suspend-toggle", endpoint="admin.users.user_suspend_toggle",
+                 view_func=users.user_suspend_toggle, methods=["POST"])
+
+# users
 app.add_url_rule(rule="/admin/users", endpoint="admin.users.users_list", view_func=users.users_list,
-                 methods=["GET", "POST"])
-app.add_url_rule(rule="/admin/users/deleted", endpoint="admin.users.users_list_deleted", view_func=users.users_list_deleted,
-                 methods=["GET", "POST"])
+                 methods=["GET"])
+app.add_url_rule(rule="/admin/users/deleted", endpoint="admin.users.users_list_deleted",
+                 view_func=users.users_list_deleted, methods=["GET"])
+app.add_url_rule(rule="/admin/users/suspended", endpoint="admin.users.users_list_suspended",
+                 view_func=users.users_list_suspended, methods=["GET"])
 
 # CRON JOBS
 app.add_url_rule(rule="/cron/remove-deleted-users", view_func=remove_deleted_users_cron, methods=["GET"])

@@ -1,13 +1,13 @@
 {% extends lang+"/admin/base.html" %}
 
-{% block title %}Deleted users{% endblock title %}
+{% block title %}Suspended users{% endblock title %}
 
 {% block scripts %}
 <script src="/static/custom/js/admin-load-more-users.js"></script>
 {% endblock scripts %}
 
 {% block content %}
-<h1>Deleted users</h1>
+<h1>Suspended users</h1>
 
 <div class="table-responsive">
     <table class="table mt-4" id="users-table">
@@ -36,10 +36,10 @@
                 <span class="badge badge-info">User</span>
                 {% endif %}
 
-                <span class="badge badge-danger">Deleted</span>
-
-                {% if some_user.suspended %}
                 <span class="badge badge-warning">Suspended</span>
+
+                {% if some_user.deleted %}
+                <span class="badge badge-danger">Deleted</span>
                 {% endif %}
             </td>
         </tr>
@@ -49,8 +49,8 @@
     {{cursor}}
 
     {% if more %}
-        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}', 'deleted')">
-            Load more deleted users
+        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}', 'suspended')">
+            Load more suspended users
         </button>
     {% endif %}
 </div>

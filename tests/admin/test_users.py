@@ -35,7 +35,7 @@ def test_admin_user_delete(client):
     params = {
         "csrf": User.set_csrf_token(user=user),
     }
-    response_post = client.post('/admin/user/{}/delete'.format(user.get_id), data=params, follow_redirects=True)
+    response_post = client.post('/admin/user/{}/delete-toggle'.format(user.get_id), data=params, follow_redirects=True)
 
     user = User.get_user_by_email(email_address="testman@test.man")  # needed to be called again due to DB context
     assert user.deleted is True
@@ -68,6 +68,20 @@ def test_admin_user_edit(client):
     assert b'Testing Person' in response_post.data
 
 
+def test_admin_user_suspend(client):
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user.suspended is False
+
+    # POST
+    params = {
+        "csrf": User.set_csrf_token(user=user),
+    }
+    response_post = client.post('/admin/user/{}/suspend-toggle'.format(user.get_id), data=params, follow_redirects=True)
+
+    user = User.get_user_by_email(email_address="testman@test.man")  # needed to be called again due to DB context
+    assert user.suspended is True
+
+
 def test_admin_users_list_1(client):
     # only one user on the list (the admin)
     response = client.get('/admin/users')
@@ -88,7 +102,7 @@ def test_admin_users_list_2(client):
 
     assert b'Jim Jones' in response.data
     assert b'user_2@my.webapp' in response.data
-    assert b'Load more users' in response.data  # load more users button
+    assert b'Load more active users' in response.data  # load more users button
 
 
 def test_admin_users_list_deleted(client):
@@ -97,6 +111,17 @@ def test_admin_users_list_deleted(client):
 
     # go to admin/users/deleted and see if users were created
     response = client.get('/admin/users/deleted')
+    assert b'Deleted users' in response.data
+    assert b'user_4@my.webapp' in response.data
+    assert b'Damian Dante' in response.data
+
+
+def test_admin_users_list_suspended(client):
+    # create multiple users via Fake Data Loader
+    client.get('/load-fake-data')
+
+    # go to admin/users/suspended and see if users were created
+    response = client.get('/admin/users/suspended')
     assert b'Deleted users' in response.data
     assert b'user_4@my.webapp' in response.data
     assert b'Damian Dante' in response.data

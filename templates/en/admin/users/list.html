@@ -31,7 +31,7 @@
             <td>{{some_user.created.strftime("%d %b %Y")}}</td>
             <td>
                 {% if some_user.admin %}
-                <span class="badge badge-warning">Admin</span>
+                <span class="badge badge-primary">Admin</span>
                 {% else %}
                 <span class="badge badge-info">User</span>
                 {% endif %}
@@ -43,7 +43,9 @@
     {{cursor}}
 
     {% if more %}
-        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}')">Load more users</button>
+        <button id="loadMoreUsersButton" class="btn btn-primary mb-4" onclick="adminLoadMoreUsers('{{next_cursor}}', 'active')">
+            Load more active users
+        </button>
     {% endif %}
 </div>
 {% endblock content %}

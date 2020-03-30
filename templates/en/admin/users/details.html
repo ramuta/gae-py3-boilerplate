@@ -19,6 +19,7 @@
             {{ selected_user.get_full_name }}
 
             {% if selected_user.deleted %}<span class="badge badge-danger">Deleted</span>{% endif %}
+            {% if selected_user.suspended %}<span class="badge badge-warning">Suspended</span>{% endif %}
         </h5>
 
         <ul class="card-text">
@@ -27,38 +28,83 @@
             <li><strong>Created:</strong> {{selected_user.created}}</li>
         </ul>
 
-        <a href="{{ url_for('admin.users.user_edit_get', user_id=selected_user.get_id) }}" class="btn btn-warning btn-sm">Edit user</a>
-        {% if not selected_user.deleted %}
-        <a href="#" data-toggle="modal" data-target="#deleteUserModal" class="btn btn-danger btn-sm">Delete user</a>
-        {% endif %}
+        <a href="{{ url_for('admin.users.user_edit_get', user_id=selected_user.get_id) }}" class="btn btn-primary btn-sm">Edit user</a>
+
+        <a href="#" data-toggle="modal" data-target="#deleteUserModal" class="btn btn-danger btn-sm">
+            {% if selected_user.deleted %}Undelete{% else %}Delete{% endif %} user
+        </a>
+
+        <a href="#" data-toggle="modal" data-target="#suspendUserModal" class="btn btn-warning btn-sm">
+            {% if selected_user.suspended %}Unsuspend user{% else %}Suspend user{% endif %}
+        </a>
     </div>
 </div>
 
-{% if not selected_user.deleted %}
-<!-- Modal -->
+<!-- un/delete user modal -->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteUserModalLabel">Delete {{ selected_user.get_full_name }}</h5>
+                <h5 class="modal-title" id="deleteUserModalLabel">
+                    {% if selected_user.deleted %}Undelete{% else %}Delete{% endif %} {{ selected_user.get_full_name }}
+                </h5>
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="{{ url_for('admin.users.user_delete', user_id=selected_user.get_id) }}">
+            <form method="post" action="{{ url_for('admin.users.user_delete_toggle', user_id=selected_user.get_id) }}">
                 <input type="hidden" name="csrf" value="{{ csrf }}">
 
                 <div class="modal-body">
-                    Do you really want to delete user {{ selected_user.get_full_name }} ({{ selected_user.email_address }})?
+                    Do you really want to
+                    {% if selected_user.deleted %}un{% endif %}delete
+                    user {{ selected_user.get_full_name }} ({{ selected_user.email_address }})?
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Delete user</button>
+                    <button type="submit" class="btn btn-danger">
+                        {% if selected_user.deleted %}Undelete{% else %}Delete{% endif %} user
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-{% endif %}
+<!-- end un/delete user modal -->
+
+<!-- un/suspend user modal -->
+<div class="modal fade" id="suspendUserModal" tabindex="-1" role="dialog" aria-labelledby="suspendUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suspendUserModalLabel">
+                    {% if selected_user.suspended %}Unsuspend{% else %}Suspend{% endif %} {{ selected_user.get_full_name }}
+                </h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{{ url_for('admin.users.user_suspend_toggle', user_id=selected_user.get_id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+
+                <div class="modal-body">
+                    Do you really want to
+                    {% if selected_user.suspended %}un{% endif %}suspend
+                    user {{ selected_user.get_full_name }} ({{ selected_user.email_address }})?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">
+                        {% if selected_user.suspended %}Unsuspend{% else %}Suspend{% endif %} user
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- end un/suspend user modal -->
 {% endblock content %}

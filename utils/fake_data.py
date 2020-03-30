@@ -40,6 +40,7 @@ def load_fake_data():
         User._test_mark_email_verified(user=user_14)
         User._test_mark_email_verified(user=user_16)
 
-        User.delete(user=user_4)  # Delete Damian Dante
+        User.delete_toggle(user=user_4)  # Delete Damian Dante
+        User.suspend_toggle(user=user_4)  # Suspend Damian Dante
 
     return redirect(url_for("public.main.index"))

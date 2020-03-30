@@ -26,19 +26,19 @@ def test_remove_deleted_users(client):
 
     # delete the user and mark deleting date at 35 days ago (because cron job only removes users that were marked as
     # deleted more than 30 days ago
-    User.delete(user=user, permanently=False)
+    User.delete_toggle(user=user, permanently=False)
     User._test_mark_email_verified(user=user)
     User._test_change_deleted_date(user=user, new_date=datetime.datetime.now()-datetime.timedelta(days=35))
 
     assert user is not None
     assert user.deleted == True
 
-    deleted_users_list_1, next_cursor, more = User.fetch(deleted=True)
+    deleted_users_list_1, next_cursor, more = User.fetch_deleted()
     assert len(deleted_users_list_1) == 1
 
     # run the cron job
     response = client.get('/cron/remove-deleted-users')
 
     # assert user is really deleted
-    deleted_users_list_2, next_cursor, more = User.fetch(deleted=True)
+    deleted_users_list_2, next_cursor, more = User.fetch_deleted()
     assert len(deleted_users_list_2) == 0

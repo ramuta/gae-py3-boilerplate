@@ -1,10 +1,20 @@
-function adminLoadMoreUsers(cursor) {
+function adminLoadMoreUsers(cursor, status) {
     let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     let usersTable = document.getElementById("users-table");
     let usersButton = document.getElementById("loadMoreUsersButton");
 
-    fetch('/admin/users?cursor='+cursor)
+    let url = '/admin/users'
+
+    if (status == "suspended") {
+        url = url + '/suspended'
+    }
+
+    if (status == "deleted") {
+        url = url + '/deleted'
+    }
+
+    fetch(url+'?cursor='+cursor)
         .then(function(response) {
             return response.text();
         })
@@ -35,9 +45,17 @@ function adminLoadMoreUsers(cursor) {
                 let userStatus = document.createElement("td");
 
                 if(user.admin) {
-                    userStatus.innerHTML = '<span class="badge badge-warning">Admin</span>';
+                    userStatus.innerHTML = '<span class="badge badge-primary">Admin</span>';
                 } else {
                     userStatus.innerHTML = '<span class="badge badge-info">User</span>';
+                }
+
+                if(user.deleted) {
+                    userStatus.innerHTML += ' <span class="badge badge-danger">Deleted</span>';
+                }
+
+                if(user.suspended) {
+                    userStatus.innerHTML += ' <span class="badge badge-warning">Suspended</span>';
                 }
 
                 userRow.appendChild(userStatus);

@@ -54,7 +54,7 @@
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{ url_for('admin.users.users_list') }}">Active users</a>
-                    <a class="collapse-item" href="#">Suspended users</a>
+                    <a class="collapse-item" href="{{ url_for('admin.users.users_list_suspended') }}">Suspended users</a>
                     <a class="collapse-item" href="{{ url_for('admin.users.users_list_deleted') }}">Deleted users</a>
                 </div>
             </div>

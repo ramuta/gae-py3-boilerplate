@@ -103,14 +103,18 @@ class User(ndb.Model):
         return user
 
     @classmethod
-    def delete(cls, user, permanently=False):
+    def delete_toggle(cls, user, permanently=False):
         with client.context():
-            if permanently:
-                user.key.delete()  # this deletes user from Datastore
+            if user.deleted:
+                user.deleted = False
             else:
-                user.deleted = True  # this does NOT delete user from Datastore (just marks it as "deleted")
-                user.deleted_date = datetime.datetime.now()
-                user.put()
+                if permanently:
+                    user.key.delete()  # this deletes user from Datastore
+                else:
+                    user.deleted = True  # this does NOT delete user from Datastore (just marks it as "deleted")
+                    user.deleted_date = datetime.datetime.now()
+
+            user.put()
 
         return True
 
@@ -132,11 +136,45 @@ class User(ndb.Model):
         return True
 
     @classmethod
-    def fetch(cls, email_address_verified=True, suspended=False, deleted=False, limit=None, cursor=None):
+    def fetch_active(cls, email_address_verified=True, limit=None, cursor=None):
         with client.context():
             users, next_cursor, more = cls.query(cls.email_address_verified == email_address_verified,
-                                                 cls.suspended == suspended,
-                                                 cls.deleted == deleted).fetch_page(limit, start_cursor=cursor)
+                                                 cls.suspended == False,
+                                                 cls.deleted == False).fetch_page(limit, start_cursor=cursor)
+
+            if is_local():
+                # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor
+                # is the same as the cursor. This happens on localhost only.
+                if limit and len(users) < limit:
+                    return users, None, False
+
+            try:
+                return users, next_cursor.urlsafe().decode(), more
+            except AttributeError as e:  # if there's no next_cursor, an AttributeError will occur
+                return users, None, False
+
+    @classmethod
+    def fetch_deleted(cls, email_address_verified=True, limit=None, cursor=None):
+        with client.context():
+            users, next_cursor, more = cls.query(cls.email_address_verified == email_address_verified,
+                                                 cls.deleted == True).fetch_page(limit, start_cursor=cursor)
+
+            if is_local():
+                # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor
+                # is the same as the cursor. This happens on localhost only.
+                if limit and len(users) < limit:
+                    return users, None, False
+
+            try:
+                return users, next_cursor.urlsafe().decode(), more
+            except AttributeError as e:  # if there's no next_cursor, an AttributeError will occur
+                return users, None, False
+
+    @classmethod
+    def fetch_suspended(cls, email_address_verified=True, limit=None, cursor=None):
+        with client.context():
+            users, next_cursor, more = cls.query(cls.email_address_verified == email_address_verified,
+                                                 cls.suspended == True).fetch_page(limit, start_cursor=cursor)
 
             if is_local():
                 # this fixes the pagination bug which returns more=True even if less users than limit or if next_cursor
@@ -316,6 +354,18 @@ class User(ndb.Model):
             user.put()
 
             return token
+
+    @classmethod
+    def suspend_toggle(cls, user):
+        with client.context():
+            if user.suspended:
+                user.suspended = False
+            else:
+                user.suspended = True
+
+            user.put()
+
+        return True
 
     @classmethod
     def validate_magic_login_token(cls, magic_token, request=None):
