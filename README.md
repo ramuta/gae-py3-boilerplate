@@ -44,7 +44,6 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
-- Admin: suspend user
 - Clean all entries (bleach?)
 - Profile: edit password
 - login with password
