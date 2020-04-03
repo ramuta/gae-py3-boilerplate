@@ -220,6 +220,8 @@ class User(ndb.Model):
 
             user.put()
 
+            # TODO: send an email to the user with the info about the new login (IP, platform, country)
+
             return token
 
     @classmethod
