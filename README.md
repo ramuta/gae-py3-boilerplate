@@ -44,9 +44,8 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
+- Tests for the "Reset password mechanism" and the "Password login"
 - Clean all entries (bleach?)
-- Profile: edit password
-- login with password
 - Admin: update SendGrid key
 - Slovene translations (all HTML templates)
 - Documentation

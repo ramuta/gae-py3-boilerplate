@@ -17,10 +17,19 @@ app.add_url_rule(rule="/", endpoint="public.main.index", view_func=public_main.i
 # PUBLIC auth
 app.add_url_rule(rule="/init", endpoint="public.auth.init", view_func=auth.init, methods=["GET", "POST"])
 app.add_url_rule(rule="/register", endpoint="public.auth.register", view_func=auth.register, methods=["GET", "POST"])
-app.add_url_rule(rule="/login", endpoint="public.auth.login", view_func=auth.login, methods=["GET", "POST"])
-app.add_url_rule(rule="/magic-login-token/<token>", view_func=auth.validate_magic_login_link, methods=["GET"])
-app.add_url_rule(rule="/login-password", endpoint="public.auth.login_password", view_func=auth.login,
+
+app.add_url_rule(rule="/login", endpoint="public.auth.login", view_func=auth.login_magic_link_send,
                  methods=["GET", "POST"])
+app.add_url_rule(rule="/magic-login-token/<token>", view_func=auth.login_magic_link_validate, methods=["GET"])
+
+app.add_url_rule(rule="/login-password", endpoint="public.auth.login_password", view_func=auth.login_via_password,
+                 methods=["GET", "POST"])
+
+app.add_url_rule(rule="/password-reset-enter-email", endpoint="public.auth.reset_password_enter_email",
+                 view_func=auth.reset_password_enter_email, methods=["GET", "POST"])
+app.add_url_rule(rule="/password-reset-token/<token>", endpoint="public.auth.reset_password_enter_password",
+                 view_func=auth.reset_password_enter_password, methods=["GET", "POST"])
+app.add_url_rule(rule="/password-reset-token/<token>", view_func=auth.login_magic_link_validate, methods=["GET"])
 
 
 # PROFILE URLS

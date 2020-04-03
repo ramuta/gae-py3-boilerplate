@@ -45,6 +45,10 @@ class User(ndb.Model):
     magic_link_token_hash = ndb.StringProperty()
     magic_link_token_expired = ndb.DateTimeProperty()
 
+    # password reset link
+    password_reset_token_hash = ndb.StringProperty()
+    password_reset_token_expired = ndb.DateTimeProperty()
+
     # status
     admin = ndb.BooleanProperty(default=False)
     suspended = ndb.BooleanProperty(default=False)  # if user is suspended, they cannot login
@@ -69,7 +73,7 @@ class User(ndb.Model):
     def create(cls, email_address, password=None, admin=False, first_name=None, last_name=None):
         with client.context():
             # check if there's any user with the same email address already
-            user = cls.query(cls.email_address == email_address).get()
+            user = cls.query(cls.email_address == email_address.lower()).get()
 
             if not user:  # if user does not yet exist, create one
                 hashed = None
@@ -78,7 +82,7 @@ class User(ndb.Model):
                     hashed = bcrypt.hashpw(password=str.encode(password), salt=bcrypt.gensalt(12))
 
                 # create the user object and store it into Datastore
-                user = cls(email_address=email_address, password_hash=hashed, admin=admin, first_name=first_name,
+                user = cls(email_address=email_address.lower(), password_hash=hashed, admin=admin, first_name=first_name,
                            last_name=last_name)
                 user.put()
 
@@ -129,7 +133,7 @@ class User(ndb.Model):
 
             if email_address:
                 # consider also setting email_address_verified to False here and making user to verify the new email
-                user.email_address = email_address
+                user.email_address = email_address.lower()
 
             user.put()
 
@@ -221,7 +225,7 @@ class User(ndb.Model):
     @classmethod
     def get_user_by_email(cls, email_address):
         with client.context():
-            user = cls.query(cls.email_address == email_address).get()
+            user = cls.query(cls.email_address == email_address.lower()).get()
             return user
 
     @classmethod
@@ -295,6 +299,68 @@ class User(ndb.Model):
                 return True
             else:
                 return False
+
+    @classmethod
+    def password_reset(cls, reset_token, password):
+        with client.context():
+            # convert token to hash
+            reset_token_hash = hashlib.sha256(str.encode(reset_token)).hexdigest()
+
+            # find user by this token
+            user = cls.query(cls.password_reset_token_hash == reset_token_hash).get()
+
+            # check if token hasn't expired yet
+            if user and user.password_reset_token_expired > datetime.datetime.now():
+                user.password_reset_token_expired = datetime.datetime.now()  # make the token expired
+                user.password_hash = bcrypt.hashpw(password=str.encode(password), salt=bcrypt.gensalt(12))
+                user.put()
+                return True, "Your password has been successfully (re)set!"
+            else:
+                # if error, return False and message describing the problem
+                return False, "The password reset token is not valid or is expired. Please request a new one."
+
+    @classmethod
+    def password_reset_link_send(cls, email_address, locale="en"):
+        token = secrets.token_hex()  # create password reset token
+
+        user = cls.get_user_by_email(email_address=email_address)
+
+        with client.context():
+            if user:
+                user.password_reset_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+                user.password_reset_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
+                user.put()
+
+                # send email with magic link to user
+                send_email(recipient_email=email_address, email_template="emails/password-reset-link.html",
+                           email_params={"password_reset_token": token},
+                           email_subject=get_translation(locale=locale,
+                                                         translation_function="password_reset_email_subject"))
+
+                return True, "Success"
+            else:
+                return False, "User with this email is not registered yet!"
+
+    @classmethod
+    def password_reset_token_validate(cls, reset_token):
+        user = None
+
+        with client.context():
+            # convert token to hash
+            reset_token_hash = hashlib.sha256(str.encode(reset_token)).hexdigest()
+
+            # find user by this token
+            user = cls.query(cls.password_reset_token_hash == reset_token_hash).get()
+
+            # check if token hasn't expired yet
+            if user and user.password_reset_token_expired > datetime.datetime.now():
+                if not user.email_address_verified:
+                    user.email_address_verified = True  # if email_address is not verified yet, mark it as verified
+                    user.put()
+                return True, "Success! Now you can (re)set your password."
+            else:
+                # if error, return False and message describing the problem
+                return False, "The password reset link is not valid or is expired. Please request a new one."
 
     @classmethod
     def permanently_batch_delete(cls):
@@ -380,8 +446,7 @@ class User(ndb.Model):
 
             # check if token hasn't expired yet
             if user and user.magic_link_token_expired > datetime.datetime.now():
-                # if email_address is not verified yet, mark it as verified
-                user.email_address_verified = True
+                user.email_address_verified = True  # if email_address is not verified yet, mark it as verified
                 user.magic_link_token_expired = datetime.datetime.now()  # make the token expired
                 user.put()
             else:
@@ -395,8 +460,26 @@ class User(ndb.Model):
         # return True and session token for storing into cookie (in handler)
         return True, session_token
 
+    @classmethod
+    def validate_password_login(cls, email_address, password, request=None):
+        with client.context():
+            # find user by email
+            user = cls.query(cls.email_address == email_address.lower()).get()
 
-    # METHODS FOR TESTING PURPOSES ONLY!
+            # if password is NOT correct...
+            if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
+                return False, "The entered password is incorrect."
+
+            # else, continue
+
+        # create session (this must be outside the "with client.context()", because context is already created in the
+        # generate_session_token() method)
+        session_token = cls.generate_session_token(user=user, request=request)
+
+        # return True and session token for storing into cookie (in handler)
+        return True, session_token
+
+    # METHODS FOR TESTING PURPOSES ONLY!!!
     @classmethod
     def _test_mark_email_verified(cls, user):
         """

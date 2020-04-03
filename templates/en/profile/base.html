@@ -54,7 +54,7 @@
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{ url_for('profile.main.sessions_list') }}">Login sessions</a>
-                    <a class="collapse-item" href="#">Change password</a>
+                    <a class="collapse-item" href="{{ url_for('public.auth.reset_password_enter_email') }}">Change password</a>
                 </div>
             </div>
         </li>
