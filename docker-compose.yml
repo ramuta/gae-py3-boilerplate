@@ -4,12 +4,12 @@ services:
   datastore:
     image: google/cloud-sdk
     ports:
-      - 8081:8081
+      - 8001:8001
     volumes:
       - ./data:/opt/data
     environment:
       - CLOUDSDK_CORE_PROJECT=test
-    command: gcloud beta emulators datastore start --data-dir=/opt/data --host-port=0.0.0.0:8081
+    command: gcloud beta emulators datastore start --data-dir=/opt/data --host-port=0.0.0.0:8001
 
   app:
     build: .
@@ -26,7 +26,7 @@ services:
       # DATASTORE
       - DATASTORE_DATASET=test
       - DATASTORE_PROJECT_ID=test
-      - DATASTORE_EMULATOR_HOST=datastore:8081
+      - DATASTORE_EMULATOR_HOST=datastore:8001
 
 volumes:
   data:

@@ -18,9 +18,9 @@ def get_db():
             os.environ["DATASTORE_EMULATOR_HOST_PATH"] = "localhost:8002/datastore"
             os.environ["DATASTORE_HOST"] = "http://localhost:8002"
         else:
-            os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8001"
-            os.environ["DATASTORE_EMULATOR_HOST_PATH"] = "localhost:8001/datastore"
-            os.environ["DATASTORE_HOST"] = "http://localhost:8001"
+            os.environ["DATASTORE_EMULATOR_HOST"] = "datastore:8001"
+            os.environ["DATASTORE_EMULATOR_HOST_PATH"] = "datastore:8001/datastore"
+            os.environ["DATASTORE_HOST"] = "http://datastore:8001"
 
         credentials = mock.Mock(spec=google.auth.credentials.Credentials)
         db = ndb.Client(project="test", credentials=credentials)
