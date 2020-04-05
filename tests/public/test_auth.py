@@ -20,6 +20,7 @@ def cleanup():
     urlopen(Request("http://localhost:8002/reset", data={}))  # this sends an empty POST request
 
 
+# INIT
 def test_init_get(client):
     response = client.get('/init')
     assert b'initialization' in response.data
@@ -41,6 +42,7 @@ def test_init_post(client):
     assert app_settings.sendgrid_api_key == "456test"
 
 
+# REGISTRATION
 def test_register_get(client):
     response = client.get('/register')
     assert b'Enter your email address' in response.data
@@ -74,13 +76,14 @@ def test_register_post_fail(client):
     assert user is not None
 
 
-def test_login_get(client):
+# LOGIN WITH JUST EMAIL
+def test_login_email_get(client):
     response = client.get('/login')
     assert b'Login' in response.data
     assert b"After you click submit, you'll receive an email" in response.data
 
 
-def test_login_post_success(client):
+def test_login_email_post_success(client):
     User.create(email_address="testman@test.man", password="test123")
 
     data = {"login-email": "testman@test.man"}
@@ -89,10 +92,61 @@ def test_login_post_success(client):
     assert 200 == response.status_code
 
 
-def test_login_post_fail(client):
+def test_login_email_post_fail(client):
     User.create(email_address="testman@test.man", password="test123")
 
     data = {"login-email": "testman23@test.man"}  # WRONG EMAIL!!!
     response = client.post('/login', data=data, follow_redirects=True)
     assert 403 == response.status_code
     assert b'User with this email is not registered yet' in response.data
+
+
+# LOGIN WITH PASSWORD
+def test_login_password_get(client):
+    response = client.get('/login-password')
+    assert b'Login with password' in response.data
+
+
+# RESET PASSWORD
+def test_reset_password_enter_email_get(client):
+    response = client.get('/password-reset-enter-email')
+    assert b'Reset password' in response.data
+    assert b"Submit your email address and we'll send you a link to (re)set your password." in response.data
+
+
+def test_reset_password_enter_email_post_success(client):
+    User.create(email_address="testman@test.man", password="test123")
+
+    data = {"reset-password-email": "testman@test.man"}
+    response = client.post('/password-reset-enter-email', data=data, follow_redirects=True)
+
+    assert b'Password Reset Link sent!' in response.data
+    assert b"Password Reset Link sent to your email address" in response.data
+
+
+def test_reset_password_enter_email_post_fail(client):
+    User.create(email_address="testman@test.man", password="test123")
+
+    data = {"reset-password-email": "some@other.email"}  # this email does not exist in the database
+    response = client.post('/password-reset-enter-email', data=data, follow_redirects=True)
+
+    assert 403 == response.status_code
+    assert b'User with this email is not registered yet!' in response.data
+
+
+def test_reset_password_enter_password_get(client):
+    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    User._test_set_password_reset_token(user, token="abc123def")
+
+    response = client.get('/password-reset-token/abc123def')
+    assert b'Reset password' in response.data
+    assert b"Enter your NEW password" in response.data
+
+
+def test_reset_password_enter_password_wrong_token_get(client):
+    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    User._test_set_password_reset_token(user, token="abc123correct")
+
+    response = client.get('/password-reset-token/abc123wrong')  # wrong token
+    assert b'Forbidden' in response.data
+    assert b"The password reset link is not valid or is expired." in response.data

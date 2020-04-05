@@ -86,7 +86,7 @@ class User(ndb.Model):
                            last_name=last_name)
                 user.put()
 
-                return True, user, "Success"  # succes, user, message
+                return True, user, "Success"  # success, user, message
             else:
                 return False, user, "User with this email address is already registered. Please go to the " \
                                     "Login page and try to log in."
@@ -505,4 +505,17 @@ class User(ndb.Model):
         with client.context():
             if is_local():
                 user.deleted_date = new_date
+                user.put()
+
+    @classmethod
+    def _test_set_password_reset_token(cls, user, token):
+        """
+        FOR TESTING PURPOSES ONLY!
+        :param user:
+        :return:
+        """
+        with client.context():
+            if is_local():
+                user.password_reset_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+                user.password_reset_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
                 user.put()
