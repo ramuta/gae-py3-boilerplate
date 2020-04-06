@@ -44,7 +44,6 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
-- Tests for the "Reset password mechanism" and the "Password login"
 - When a user logs in, send an email to the user with the info about the session (IP, platform, country)
 - Clean all entries (bleach?)
 - Admin: update SendGrid key

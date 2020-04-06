@@ -62,7 +62,7 @@ def test_register_post_success(client):
 
 
 def test_register_post_fail(client):
-    User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man")
 
     data = {"registration-first-name": "Testman", "registration-last-name": "Testovian",
             "registration-email": "testman@test.man"}
@@ -84,7 +84,7 @@ def test_login_email_get(client):
 
 
 def test_login_email_post_success(client):
-    User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man")
 
     data = {"login-email": "testman@test.man"}
     response = client.post('/login', data=data, follow_redirects=True)
@@ -93,7 +93,7 @@ def test_login_email_post_success(client):
 
 
 def test_login_email_post_fail(client):
-    User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man")
 
     data = {"login-email": "testman23@test.man"}  # WRONG EMAIL!!!
     response = client.post('/login', data=data, follow_redirects=True)
@@ -107,6 +107,35 @@ def test_login_password_get(client):
     assert b'Login with password' in response.data
 
 
+def test_login_password_success_post(client):
+    # correct password
+    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    User._test_mark_email_verified(user=user)
+
+    data = {
+        "login-email": "testman@test.man",
+        "login-password": "test123",
+    }
+    response = client.post('/login-password', data=data, follow_redirects=True)
+    assert b'Profile' in response.data
+    assert b'Sessions' in response.data
+
+
+def test_login_password_fail_post(client):
+    # wrong password
+    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    User._test_mark_email_verified(user=user)
+
+    data = {
+        "login-email": "testman@test.man",
+        "login-password": "wrongpassword123",
+    }
+    response = client.post('/login-password', data=data, follow_redirects=True)
+    assert 403 == response.status_code
+    assert b'Forbidden' in response.data
+    assert b'The entered password is incorrect.' in response.data
+
+
 # RESET PASSWORD
 def test_reset_password_enter_email_get(client):
     response = client.get('/password-reset-enter-email')
@@ -115,7 +144,7 @@ def test_reset_password_enter_email_get(client):
 
 
 def test_reset_password_enter_email_post_success(client):
-    User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man")
 
     data = {"reset-password-email": "testman@test.man"}
     response = client.post('/password-reset-enter-email', data=data, follow_redirects=True)
@@ -125,7 +154,7 @@ def test_reset_password_enter_email_post_success(client):
 
 
 def test_reset_password_enter_email_post_fail(client):
-    User.create(email_address="testman@test.man", password="test123")
+    User.create(email_address="testman@test.man")
 
     data = {"reset-password-email": "some@other.email"}  # this email does not exist in the database
     response = client.post('/password-reset-enter-email', data=data, follow_redirects=True)
@@ -135,7 +164,8 @@ def test_reset_password_enter_email_post_fail(client):
 
 
 def test_reset_password_enter_password_get(client):
-    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    # correct token (GET)
+    success, user, message = User.create(email_address="testman@test.man")
     User._test_set_password_reset_token(user, token="abc123def")
 
     response = client.get('/password-reset-token/abc123def')
@@ -144,9 +174,30 @@ def test_reset_password_enter_password_get(client):
 
 
 def test_reset_password_enter_password_wrong_token_get(client):
-    success, user, message = User.create(email_address="testman@test.man", password="test123")
+    # wrong token (GET)
+    success, user, message = User.create(email_address="testman@test.man")
     User._test_set_password_reset_token(user, token="abc123correct")
 
     response = client.get('/password-reset-token/abc123wrong')  # wrong token
     assert b'Forbidden' in response.data
     assert b"The password reset link is not valid or is expired." in response.data
+
+
+def test_reset_password_enter_password_post(client):
+    # correct token (POST)
+    success, user, message = User.create(email_address="testman@test.man")
+    User._test_set_password_reset_token(user, token="abc123def")
+
+    assert user.password_hash is None  # assert that user does not have a password yet
+
+    # set a password
+    data = {
+        "reset-password-new-password": "abc123",
+        "reset-password-repeat-password": "abc123",
+    }
+    response = client.post('/password-reset-token/abc123def', data=data, follow_redirects=True)
+    assert b'Success!' in response.data
+    assert b"Your password has been successfully (re)set." in response.data
+
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user.password_hash is not None  # assert that the user now has a password
