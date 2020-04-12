@@ -45,6 +45,14 @@ A web application starter for Google App Engine Python 3 runtime.
 ## TODO
 
 - When a user logs in, send an email to the user with the info about the session (IP, platform, country)
+- Admin: when admin changes some user's email address, also delete all the user's session tokens
+- User: edit profile data (first name, last name)
+- User change email: 
+    - in a similar way as reset password works
+    - BUT, it only changes, if the user clicks verification link on the new email address
+    - in this case, the token hash is made out of token + new email address
+    - additional security measure: when user changes email address, the password should be set to some random password (so the user is forced to reset it again)
+    - also, delete all sessions for that user
 - Admin: update SendGrid key
 - Slovene translations (all HTML templates)
 - Documentation

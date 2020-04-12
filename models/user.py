@@ -141,6 +141,7 @@ class User(ndb.Model):
             if last_name:
                 user.last_name = bleach.clean(last_name, strip=True)  # sanitize input
 
+            # only admins can change the email address via the User.edit() method
             if email_address:
                 email_address = bleach.clean(email_address, strip=True)  # sanitize input
 
@@ -161,6 +162,8 @@ class User(ndb.Model):
                         # also reset user's password with a fake randomly generated password
                         user.password_hash = bcrypt.hashpw(password=str.encode(secrets.token_hex()),
                                                            salt=bcrypt.gensalt(12))
+
+                        # TODO: also delete all user's sessions
 
             user.put()
 
