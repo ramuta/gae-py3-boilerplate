@@ -1,5 +1,5 @@
 import json
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, abort
 from google.cloud.ndb import Cursor
 from models.user import User
 from utils.decorators import admin_required, set_csrf, validate_csrf
@@ -36,10 +36,15 @@ def user_edit_post(user_id, **params):
 
     first_name = request.form.get("first-name")
     last_name = request.form.get("last-name")
+    email_address = request.form.get("email-address")
 
-    User.edit(user=selected_user, first_name=first_name, last_name=last_name)
+    success, result = User.edit(user=selected_user, first_name=first_name, last_name=last_name,
+                                email_address=email_address)
 
-    return redirect(url_for("admin.users.user_details", user_id=selected_user.get_id))
+    if success:
+        return redirect(url_for("admin.users.user_details", user_id=selected_user.get_id))
+    else:
+        return abort(403, description=result)
 
 
 @admin_required

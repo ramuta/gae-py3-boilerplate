@@ -5,6 +5,7 @@ import secrets
 from operator import attrgetter
 
 import bcrypt
+import bleach
 from google.cloud import ndb
 from models import get_db
 from translations.loader import get_translation
@@ -72,6 +73,15 @@ class User(ndb.Model):
     @classmethod
     def create(cls, email_address, password=None, admin=False, first_name=None, last_name=None):
         with client.context():
+            # sanitize inputs
+            email_address = bleach.clean(email_address, strip=True)
+
+            if first_name:
+                first_name = bleach.clean(first_name, strip=True)
+
+            if last_name:
+                last_name = bleach.clean(last_name, strip=True)
+
             # check if there's any user with the same email address already
             user = cls.query(cls.email_address == email_address.lower()).get()
 
@@ -126,18 +136,35 @@ class User(ndb.Model):
     def edit(cls, user, first_name=None, last_name=None, email_address=None):
         with client.context():
             if first_name:
-                user.first_name = first_name
+                user.first_name = bleach.clean(first_name, strip=True)  # sanitize input
 
             if last_name:
-                user.last_name = last_name
+                user.last_name = bleach.clean(last_name, strip=True)  # sanitize input
 
             if email_address:
-                # consider also setting email_address_verified to False here and making user to verify the new email
-                user.email_address = email_address.lower()
+                email_address = bleach.clean(email_address, strip=True)  # sanitize input
+
+                if user.email_address != email_address.lower():  # new email must not equal to old one
+                    # check if user with this email address already exists
+                    existing_user = cls.query(cls.email_address == email_address.lower()).get()
+
+                    if existing_user:
+                        # if user with this email already exists, then terminate the whole edit operation
+                        return False, "User with this email address already exists"
+                    else:
+                        # otherwise set the new password, but make sure to make the user to verify it
+                        user.email_address = email_address.lower()
+
+                        # set email_address_verified to False, so that you make the user to verify the email again
+                        user.email_address_verified = False
+
+                        # also reset user's password with a fake randomly generated password
+                        user.password_hash = bcrypt.hashpw(password=str.encode(secrets.token_hex()),
+                                                           salt=bcrypt.gensalt(12))
 
             user.put()
 
-        return True
+        return True, "Success"
 
     @classmethod
     def fetch_active(cls, email_address_verified=True, limit=None, cursor=None):
@@ -226,6 +253,9 @@ class User(ndb.Model):
 
     @classmethod
     def get_user_by_email(cls, email_address):
+        # sanitize input
+        email_address = bleach.clean(email_address, strip=True)
+
         with client.context():
             user = cls.query(cls.email_address == email_address.lower()).get()
             return user
@@ -262,8 +292,8 @@ class User(ndb.Model):
 
             if not user.email_address_verified:
                 logging.warning("User with unverified email address {} wanted to login.".format(user.email_address))
-                return False, None, "This user's email address hasn't yet been verified. Please contact website " \
-                                    "administrators for more info."
+                return False, None, "This user's email address hasn't yet been verified. Log out and try to log in  " \
+                                    "via email again."
 
             # important: you can't check for expiration in the cls.query() above, because it wouldn't only check the
             # expiration date of the session in question, but any expiration date which could give a false result
@@ -323,7 +353,11 @@ class User(ndb.Model):
 
     @classmethod
     def password_reset_link_send(cls, email_address, locale="en"):
-        token = secrets.token_hex()  # create password reset token
+        # sanitize input
+        email_address = bleach.clean(email_address, strip=True)
+
+        # create password reset token
+        token = secrets.token_hex()
 
         user = cls.get_user_by_email(email_address=email_address)
 
@@ -376,10 +410,13 @@ class User(ndb.Model):
 
     @classmethod
     def send_magic_login_link(cls, email_address, locale="en"):
+        # sanitize input
+        email_address = bleach.clean(email_address, strip=True)
+
         # generate magic link token and its hash
         token = secrets.token_hex()
 
-        user = cls.get_user_by_email(email_address=email_address)
+        user = cls.get_user_by_email(email_address=email_address.lower())
 
         with client.context():
             if user:
@@ -464,6 +501,12 @@ class User(ndb.Model):
 
     @classmethod
     def validate_password_login(cls, email_address, password, request=None):
+        if not password:
+            return False, "No password was entered."
+
+        # sanitize input
+        email_address = bleach.clean(email_address, strip=True)
+
         with client.context():
             # find user by email
             user = cls.query(cls.email_address == email_address.lower()).get()
