@@ -163,7 +163,8 @@ class User(ndb.Model):
                         user.password_hash = bcrypt.hashpw(password=str.encode(secrets.token_hex()),
                                                            salt=bcrypt.gensalt(12))
 
-                        # TODO: also delete all user's sessions
+                        # delete all the user's sessions (so that s/he needs to login again with the new email address)
+                        user.sessions = []
 
             user.put()
 
@@ -249,8 +250,6 @@ class User(ndb.Model):
                 user.sessions = valid_sessions  # now only non-expired sessions are stored in the User object
 
             user.put()
-
-            # TODO: send an email to the user with the info about the new login (IP, platform, country)
 
             return token
 

@@ -44,8 +44,6 @@ A web application starter for Google App Engine Python 3 runtime.
 
 ## TODO
 
-- When a user logs in, send an email to the user with the info about the session (IP, platform, country)
-- Admin: when admin changes some user's email address, also delete all the user's session tokens
 - User change email: 
     - in a similar way as reset password works
     - BUT, it only changes, if the user clicks verification link on the new email address
