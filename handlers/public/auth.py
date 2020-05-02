@@ -58,7 +58,7 @@ def login_magic_link_validate(token, **params):
         if success:
             # result is session token, store it in a cookie
             # prepare a response and then store the token in a cookie
-            response = make_response(redirect(url_for("profile.main.sessions_list")))
+            response = make_response(redirect(url_for("profile.main.my_details")))
 
             # on localhost don't make the cookie secure and http-only (but on production it should be)
             cookie_secure_httponly = False
@@ -88,7 +88,7 @@ def login_via_password(**params):
         if success:
             # result is session token, store it in a cookie
             # prepare a response and then store the token in a cookie
-            response = make_response(redirect(url_for("profile.main.sessions_list")))
+            response = make_response(redirect(url_for("profile.main.my_details")))
 
             # on localhost don't make the cookie secure and http-only (but on production it should be)
             cookie_secure_httponly = False

@@ -35,25 +35,42 @@
     <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('profile.main.sessions_list') }}">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('profile.main.my_details') }}">
             <div class="sidebar-brand-icon">
                 <i class="fas fa-user"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">User</div>
+            <div class="sidebar-brand-text mx-3">
+                {% if user.first_name and user.first_name != "None" %}{{ user.first_name }}{% else %}User{% endif %}
+            </div>
         </a>
 
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
-        <!-- Nav Item - Pages Collapse Menu -->
+        <!-- Nav Item - Profile -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProfile" aria-expanded="true" aria-controls="collapseProfile">
+                <i class="fas fa-fw fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <div id="collapseProfile" class="collapse" aria-labelledby="headingProfile" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="{{ url_for('profile.main.my_details') }}">My profile</a>
+                    <a class="collapse-item" href="{{ url_for('profile.main.edit_profile_get') }}">Edit profile</a>
+                    <a class="collapse-item" href="{{ url_for('profile.main.change_email_get') }}">Change email address</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Security -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSecurity" aria-expanded="true" aria-controls="collapseSecurity">
                 <i class="fas fa-fw fa-lock"></i>
                 <span>Security</span>
             </a>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div id="collapseSecurity" class="collapse" aria-labelledby="headingSecurity" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ url_for('profile.main.sessions_list') }}">Login sessions</a>
+                    <a class="collapse-item" href="{{ url_for('profile.sessions.sessions_list') }}">Login sessions</a>
                     <a class="collapse-item" href="{{ url_for('public.auth.reset_password_enter_email') }}">Change password</a>
                 </div>
             </div>

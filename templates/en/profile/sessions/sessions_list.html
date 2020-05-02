@@ -70,7 +70,7 @@ $(function () {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <form method="post" action="{{ url_for('profile.main.session_delete') }}">
+                            <form method="post" action="{{ url_for('profile.sessions.session_delete') }}">
                                 <input type="hidden" name="delete-session-token" value="{{ session.token_hash|truncate(5, end='') }}">
                                 <input type="hidden" name="csrf" value="{{ csrf }}">
                                 <button type="submit" class="btn btn-danger">Delete</button>

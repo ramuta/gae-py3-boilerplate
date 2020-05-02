@@ -1,0 +1,26 @@
+{% extends lang+"/profile/base.html" %}
+
+{% block title %}Profile{% endblock title %}
+
+{% block scripts %}
+<script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+{% endblock scripts %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>My profile</h1>
+
+    <ul>
+        <li><strong>First name:</strong> {{user.first_name}}</li>
+        <li><strong>Last name:</strong> {{user.last_name}}</li>
+        <li><strong>Email:</strong> {{user.email_address}}</li>
+    </ul>
+
+    <a class="btn btn-info" href="{{ url_for('profile.main.edit_profile_get') }}">Edit profile</a>
+    <a class="btn btn-warning" href="{{ url_for('profile.main.change_email_get') }}">Change email address</a>
+</div>
+{% endblock content %}

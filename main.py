@@ -1,5 +1,6 @@
 from flask import Flask
 
+import handlers.profile.sessions
 from cron.remove_deleted_users import remove_deleted_users_cron
 from handlers.admin import users
 from handlers.profile.auth import logout
@@ -33,10 +34,20 @@ app.add_url_rule(rule="/password-reset-token/<token>", view_func=auth.login_magi
 
 
 # PROFILE URLS
-app.add_url_rule(rule="/profile", endpoint="profile.main.sessions_list", view_func=profile_main.sessions_list,
+app.add_url_rule(rule="/profile", endpoint="profile.main.my_details", view_func=profile_main.my_details,
                  methods=["GET"])
-app.add_url_rule(rule="/profile/session/delete", endpoint="profile.main.session_delete",
-                 view_func=profile_main.session_delete, methods=["POST"])
+app.add_url_rule(rule="/profile/edit", endpoint="profile.main.edit_profile_get",
+                 view_func=profile_main.edit_profile_get, methods=["GET"])
+app.add_url_rule(rule="/profile/edit", endpoint="profile.main.edit_profile_post",
+                 view_func=profile_main.edit_profile_post, methods=["POST"])
+app.add_url_rule(rule="/profile/change-email", endpoint="profile.main.change_email_get",
+                 view_func=profile_main.change_email_get, methods=["GET"])
+
+# PROFILE sessions
+app.add_url_rule(rule="/profile/sessions", endpoint="profile.sessions.sessions_list",
+                 view_func=handlers.profile.sessions.sessions_list, methods=["GET"])
+app.add_url_rule(rule="/profile/session/delete", endpoint="profile.sessions.session_delete",
+                 view_func=handlers.profile.sessions.session_delete, methods=["POST"])
 
 # PROFILE auth
 app.add_url_rule(rule="/logout", endpoint="profile.auth.logout", view_func=logout, methods=["POST"])

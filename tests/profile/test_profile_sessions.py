@@ -27,34 +27,28 @@ def cleanup():
     urlopen(Request("http://localhost:8002/reset", data={}))  # this sends an empty POST request
 
 
-def test_profile_my_details(client):
+def test_profile_sessions(client):
     user = User.get_user_by_email(email_address="testman@test.man")
     assert user is not None
 
-    response = client.get('/profile')
+    response = client.get('/profile/sessions')
 
-    assert b'My profile' in response.data
+    assert b'Sessions' in response.data
+    assert b'Delete' in response.data  # if there's at least one session on the list, there's also a Delete button
+    # check if session token hash (first five chars) is in the sessions list (as session ID)
+    assert str.encode("{}".format(user.sessions[0].token_hash[:5])) in response.data
 
 
-def test_profile_edit_get(client):
+def test_profile_session_delete(client):
     user = User.get_user_by_email(email_address="testman@test.man")
     assert user is not None
 
-    response = client.get('/profile/edit')
-
-    assert b'Edit profile' in response.data
-
-
-def test_profile_edit_post(client):
-    user = User.get_user_by_email(email_address="testman@test.man")
-    assert user is not None
-
-    # POST
     params = {
         "csrf": User.set_csrf_token(user=user),
-        "first-name": "Neo",
-        "last-name": "Anderson",
+        "delete-session-token": user.sessions[0].token_hash[:5],  # send the last 5 digits of the session token hash
     }
-    response_post = client.post('/profile/edit', data=params, follow_redirects=True)
-    assert b'Neo' in response_post.data
-    assert b'Anderson' in response_post.data
+
+    response = client.post('/profile/session/delete', data=params, follow_redirects=True)
+
+    user = User.get_user_by_email(email_address="testman@test.man")  # needs to be called again due to Datastore context
+    assert user.sessions == []

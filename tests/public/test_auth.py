@@ -117,8 +117,7 @@ def test_login_password_success_post(client):
         "login-password": "test123",
     }
     response = client.post('/login-password', data=data, follow_redirects=True)
-    assert b'Profile' in response.data
-    assert b'Sessions' in response.data
+    assert b'My profile' in response.data
 
 
 def test_login_password_fail_post(client):

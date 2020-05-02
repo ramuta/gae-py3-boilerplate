@@ -28,7 +28,7 @@ def validate_csrf(func):
             return func(**params)
         else:
             logging.error("CSRF token is not valid for user {user_id}.".format(user_id=user.get_id))
-            return abort(403)
+            return abort(403, description="CSRF token is missing or not valid.")
 
     return wrapper
 
