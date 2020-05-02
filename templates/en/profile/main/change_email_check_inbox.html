@@ -1,0 +1,21 @@
+{% extends lang+"/profile/base.html" %}
+
+{% block title %}Change my email address{% endblock title %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('profile.main.my_details') }}">My profile</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Change email address</li>
+    </ol>
+</nav>
+
+<div class="container mt-4">
+    <h1>Confirmation needed</h1>
+
+    <p>
+        <strong>Check your inbox (of the new email address)</strong>. We have sent you a message to your new email
+        address. Click on the magic link in the message in order to confirm the change of your email address.
+    </p>
+</div>
+{% endblock content %}

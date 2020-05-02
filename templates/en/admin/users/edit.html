@@ -17,7 +17,7 @@
     </div>
 
     <div class="card-body">
-        <ul class="card-text">
+        <div class="card-text">
 
             <form method="post" action="{{ url_for('admin.users.user_edit_post', user_id=selected_user.get_id) }}">
                 <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -44,7 +44,7 @@
                 </div>
             </form>
 
-        </ul>
+        </div>
     </div>
 </div>
 {% endblock content %}

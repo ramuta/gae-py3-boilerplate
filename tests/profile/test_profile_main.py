@@ -27,13 +27,26 @@ def cleanup():
     urlopen(Request("http://localhost:8002/reset", data={}))  # this sends an empty POST request
 
 
-def test_profile_my_details(client):
+def test_profile_change_email_get(client):
     user = User.get_user_by_email(email_address="testman@test.man")
     assert user is not None
 
-    response = client.get('/profile')
+    response = client.get('/profile/change-email')
 
-    assert b'My profile' in response.data
+    assert b'Change my email address' in response.data
+
+
+def test_profile_change_email_post(client):
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user is not None
+
+    # POST
+    params = {
+        "csrf": User.set_csrf_token(user=user),
+        "email-address": "testman22@test.man",
+    }
+    response_post = client.post('/profile/change-email', data=params, follow_redirects=True)
+    assert b'Confirmation needed' in response_post.data
 
 
 def test_profile_edit_get(client):
@@ -58,3 +71,12 @@ def test_profile_edit_post(client):
     response_post = client.post('/profile/edit', data=params, follow_redirects=True)
     assert b'Neo' in response_post.data
     assert b'Anderson' in response_post.data
+
+
+def test_profile_my_details(client):
+    user = User.get_user_by_email(email_address="testman@test.man")
+    assert user is not None
+
+    response = client.get('/profile')
+
+    assert b'My profile' in response.data

@@ -1,35 +1,36 @@
 {% extends lang+"/profile/base.html" %}
 
-{% block title %}Edit profile{% endblock title %}
+{% block title %}Change my email address{% endblock title %}
 
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url_for('profile.main.my_details') }}">My profile</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        <li class="breadcrumb-item active" aria-current="page">Change email address</li>
     </ol>
 </nav>
 
 <div class="container mt-4">
-    <h1>Edit profile</h1>
+    <h1>Change my email address</h1>
+
+    <p>
+        <strong>Important:</strong> Changing your email address will delete your password and log you out on all
+        devices (as a security measure).
+    </p>
 
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="card-text">
 
-                <form method="post" action="{{ url_for('profile.main.edit_profile_post') }}">
+                <form method="post" action="{{ url_for('profile.main.change_email_post') }}">
                     <input type="hidden" name="csrf" value="{{ csrf }}">
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="firstNameField">First name</label>
-                                <input type="text" name="first-name" class="form-control" id="firstNameField" value="{{user.first_name}}">
-                            </div>
 
                             <div class="form-group">
-                                <label for="lastNameField">Last name</label>
-                                <input type="text" name="last-name" class="form-control" id="lastNameField" value="{{user.last_name}}">
+                                <label for="emailField">Email address</label>
+                                <input type="email" name="email-address" class="form-control" id="emailField" value="{{user.email_address}}">
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>

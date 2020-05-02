@@ -1,0 +1,18 @@
+{% extends lang+"/emails/base.html" %}
+
+{% block preheader %}Confirm the change of your email address.{% endblock preheader %}
+
+{% block message %}
+<p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+    Hi there,
+</p>
+
+<p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+    You've requested a change of your email address to {{new_email_address}}. Please confirm the change by clicking
+    this link:
+
+    <a href="{{app_root_url}}/change-email-token/{{change_email_token}}">
+        CLICK HERE TO CONFIRM THE CHANGE EMAIL ADDRESS
+    </a>
+</p>
+{% endblock message %}

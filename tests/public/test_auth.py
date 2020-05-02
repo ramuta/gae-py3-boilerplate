@@ -101,6 +101,16 @@ def test_login_email_post_fail(client):
     assert b'User with this email is not registered yet' in response.data
 
 
+# CHANGE OWN EMAIL ADDRESS (BY USER)
+def test_login_email_validate_token_get(client):
+    # correct token (GET)
+    success, user, message = User.create(email_address="testman@test.man")
+    User._test_set_magic_link_token(user, token="abc123def")
+
+    response = client.get('/magic-login-token/abc123def', follow_redirects=True)
+    assert b'My profile' in response.data
+
+
 # LOGIN WITH PASSWORD
 def test_login_password_get(client):
     response = client.get('/login-password')
@@ -200,3 +210,17 @@ def test_reset_password_enter_password_post(client):
 
     user = User.get_user_by_email(email_address="testman@test.man")
     assert user.password_hash is not None  # assert that the user now has a password
+
+
+# CHANGE OWN EMAIL ADDRESS (BY USER)
+def test_change_email_validate_token_get(client):
+    # correct token (GET)
+    success, user, message = User.create(email_address="testman@test.man")
+    User._test_set_change_email_token(user, token="abc123def-n1nj4-testman2@test.man")
+
+    response = client.get('/change-email-token/abc123def-n1nj4-testman2@test.man', follow_redirects=True)
+
+    user = User.get_user_by_email(email_address="testman2@test.man")
+    assert user is not None
+
+    assert b'My profile' in response.data

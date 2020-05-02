@@ -8,6 +8,32 @@ from utils.translations import render_template_with_translations, get_locale
 
 
 @public_handler
+def change_email_link_validate(token, **params):
+    # when user changes their own email address and confirms the change by clicking the link received via email, this
+    # is the handler that does the token validation process
+    if request.method == "GET":
+        success, result = User.validate_change_email_token(token=token, request=request)
+
+        if success:
+            # result is session token, store it in a cookie
+            # prepare a response and then store the token in a cookie
+            response = make_response(redirect(url_for("profile.main.my_details")))
+
+            # on localhost don't make the cookie secure and http-only (but on production it should be)
+            cookie_secure_httponly = False
+            if not is_local():
+                cookie_secure_httponly = True
+
+            # store the token in a cookie
+            response.set_cookie(key="my-web-app-session", value=result, secure=cookie_secure_httponly,
+                                httponly=cookie_secure_httponly)
+            return response
+        else:
+            # result is an error message
+            return abort(403, description=result)
+
+
+@public_handler
 def init(**params):
     """Initialize the web app if there's no admin user yet. This is only needed once."""
 

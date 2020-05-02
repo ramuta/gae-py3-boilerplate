@@ -50,6 +50,10 @@ class User(ndb.Model):
     password_reset_token_hash = ndb.StringProperty()
     password_reset_token_expired = ndb.DateTimeProperty()
 
+    # email change link
+    change_email_token_hash = ndb.StringProperty()
+    change_email_token_expired = ndb.DateTimeProperty()
+
     # status
     admin = ndb.BooleanProperty(default=False)
     suspended = ndb.BooleanProperty(default=False)  # if user is suspended, they cannot login
@@ -370,7 +374,7 @@ class User(ndb.Model):
                 user.put()
 
                 # send email with magic link to user
-                send_email(recipient_email=email_address, email_template="emails/password-reset-link.html",
+                send_email(recipient_email=email_address, email_template="emails/password_reset_link.html",
                            email_params={"password_reset_token": token},
                            email_subject=get_translation(locale=locale,
                                                          translation_function="password_reset_email_subject"))
@@ -413,12 +417,12 @@ class User(ndb.Model):
     @classmethod
     def send_magic_login_link(cls, email_address, locale="en"):
         # sanitize input
-        email_address = bleach.clean(email_address, strip=True)
+        email_address = bleach.clean(email_address, strip=True).lower()
 
-        # generate magic link token and its hash
+        # generate magic link token
         token = secrets.token_hex()
 
-        user = cls.get_user_by_email(email_address=email_address.lower())
+        user = cls.get_user_by_email(email_address=email_address)
 
         with client.context():
             if user:
@@ -427,7 +431,7 @@ class User(ndb.Model):
                 user.put()
 
                 # send email with magic link to user
-                send_email(recipient_email=email_address, email_template="emails/login-magic-link.html",
+                send_email(recipient_email=email_address, email_template="emails/login_magic_link.html",
                            email_params={"magic_login_token": token},
                            email_subject=get_translation(locale=locale,
                                                          translation_function="magic_link_email_subject"))
@@ -475,6 +479,79 @@ class User(ndb.Model):
         return True
 
     @classmethod
+    def user_change_own_email(cls, user, new_email_address, locale="en"):
+        # this method is for users only to change their own email addresses
+        with client.context():
+            new_email_address = bleach.clean(new_email_address, strip=True).lower()  # sanitize input
+
+            if user.email_address != new_email_address:  # new email must not equal to old one
+                # check if user with this email address already exists
+                existing_user = cls.query(cls.email_address == new_email_address).get()
+
+                if existing_user:
+                    # if user with this email already exists, then terminate the whole change email operation
+                    return False, "User with this email address already exists"
+                else:
+                    # generate magic link token (needs to include the new email address)
+                    token = "{0}-n1nj4-{1}".format(secrets.token_hex(), new_email_address)
+
+                    user.change_email_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+                    user.change_email_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
+                    user.put()
+
+                    # send email with magic link to user
+                    subject = get_translation(locale=locale, translation_function="change_email_link_email_subject")
+                    send_email(recipient_email=new_email_address, email_template="emails/change_email_link.html",
+                               email_params={"change_email_token": token, "new_email_address": new_email_address},
+                               email_subject=subject.format(new_email_address=new_email_address))
+
+                    return True, "Success"
+            else:
+                return False, "You have entered the same email address as your existing one."
+
+    @classmethod
+    def validate_change_email_token(cls, token, request=None):
+        with client.context():
+            bare_token, new_email_address = token.split("-n1nj4-")
+
+            # check again if user with this email address already exists (could have been created in the mean time)
+            existing_user = cls.query(cls.email_address == new_email_address).get()
+
+            if existing_user:
+                # if user with this email already exists, then terminate the whole change email operation
+                return False, "User with this email address already exists"
+            else:
+                # convert token to hash
+                token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+
+                # find user by this token
+                user = cls.query(cls.change_email_token_hash == token_hash).get()
+
+                # check if token hasn't expired yet
+                if user and user.change_email_token_expired > datetime.datetime.now():
+                    user.email_address = new_email_address  # change the email address
+                    user.email_address_verified = True  # if email_address is not verified yet, mark it as verified
+                    user.change_email_token_expired = datetime.datetime.now()  # make the token expired
+
+                    # security measures: someone could try to steal victim's identity by entering victim's
+                    # email address and hoping the victim would click on the confirmation link. In order to prevent
+                    # this, the password and sessions need to be deleted.
+                    user.password_hash = None
+                    user.sessions = []
+
+                    user.put()
+                else:
+                    # if error, return False and message describing the problem
+                    return False, "The change email token is not valid or is expired. The change of email is aborted."
+
+        # create session (this must be outside the "with client.context()", because context is already created in the
+        # generate_session_token() method)
+        session_token = cls.generate_session_token(user=user, request=request)
+
+        # return True and session token for storing into cookie (in handler)
+        return True, session_token
+
+    @classmethod
     def validate_magic_login_token(cls, magic_token, request=None):
         user = None
 
@@ -513,6 +590,10 @@ class User(ndb.Model):
             # find user by email
             user = cls.query(cls.email_address == email_address.lower()).get()
 
+            # if user does not have a password set (do not reveal there's no password set).
+            if not user.password_hash:
+                return False, "The entered password is incorrect."
+
             # if password is NOT correct...
             if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
                 return False, "The entered password is incorrect."
@@ -528,37 +609,42 @@ class User(ndb.Model):
 
     # METHODS FOR TESTING PURPOSES ONLY!!!
     @classmethod
-    def _test_mark_email_verified(cls, user):
-        """
-        FOR TESTING PURPOSES ONLY!
-        :param user:
-        :return:
-        """
-        with client.context():
-            if is_local():
-                user.email_address_verified = True
-                user.put()
-
-    @classmethod
     def _test_change_deleted_date(cls, user, new_date):
-        """
-        FOR TESTING PURPOSES ONLY!
-        :param user:
-        :param new_date:
-        :return:
-        """
+        """FOR TESTING PURPOSES ONLY!"""
         with client.context():
             if is_local():
                 user.deleted_date = new_date
                 user.put()
 
     @classmethod
+    def _test_mark_email_verified(cls, user):
+        """FOR TESTING PURPOSES ONLY!"""
+        with client.context():
+            if is_local():
+                user.email_address_verified = True
+                user.put()
+
+    @classmethod
+    def _test_set_change_email_token(cls, user, token):
+        """FOR TESTING PURPOSES ONLY!"""
+        with client.context():
+            if is_local():
+                user.change_email_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+                user.change_email_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
+                user.put()
+
+    @classmethod
+    def _test_set_magic_link_token(cls, user, token):
+        """FOR TESTING PURPOSES ONLY!"""
+        with client.context():
+            if is_local():
+                user.magic_link_token_hash = hashlib.sha256(str.encode(token)).hexdigest()
+                user.magic_link_token_expired = datetime.datetime.now() + datetime.timedelta(hours=3)
+                user.put()
+
+    @classmethod
     def _test_set_password_reset_token(cls, user, token):
-        """
-        FOR TESTING PURPOSES ONLY!
-        :param user:
-        :return:
-        """
+        """FOR TESTING PURPOSES ONLY!"""
         with client.context():
             if is_local():
                 user.password_reset_token_hash = hashlib.sha256(str.encode(token)).hexdigest()

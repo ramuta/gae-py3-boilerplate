@@ -30,7 +30,8 @@ app.add_url_rule(rule="/password-reset-enter-email", endpoint="public.auth.reset
                  view_func=auth.reset_password_enter_email, methods=["GET", "POST"])
 app.add_url_rule(rule="/password-reset-token/<token>", endpoint="public.auth.reset_password_enter_password",
                  view_func=auth.reset_password_enter_password, methods=["GET", "POST"])
-app.add_url_rule(rule="/password-reset-token/<token>", view_func=auth.login_magic_link_validate, methods=["GET"])
+
+app.add_url_rule(rule="/change-email-token/<token>", view_func=auth.change_email_link_validate, methods=["GET"])
 
 
 # PROFILE URLS
@@ -42,6 +43,8 @@ app.add_url_rule(rule="/profile/edit", endpoint="profile.main.edit_profile_post"
                  view_func=profile_main.edit_profile_post, methods=["POST"])
 app.add_url_rule(rule="/profile/change-email", endpoint="profile.main.change_email_get",
                  view_func=profile_main.change_email_get, methods=["GET"])
+app.add_url_rule(rule="/profile/change-email", endpoint="profile.main.change_email_post",
+                 view_func=profile_main.change_email_post, methods=["POST"])
 
 # PROFILE sessions
 app.add_url_rule(rule="/profile/sessions", endpoint="profile.sessions.sessions_list",
