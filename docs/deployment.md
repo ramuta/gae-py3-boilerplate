@@ -43,10 +43,12 @@ Go to Google Cloud Console, open your project and type this in the Search box: *
 You will probably need to enable billing for your project, but don't worry - this does not mean Google will start 
 charging you. Google has a very generous **free quota** and you will very likely stay within that quote.
 
-But it doesn't hurt to set up the daily limit for your GAE app on Google Cloud Console (type "App Engine settings" in 
-the Search box and then enter the daily spending limit (it can be 0).
+### 5) Enable Cloud Tasks API
 
-### 5) Deploy your code to GAE
+Cloud Tasks are not enabled by default, so you'll have to enable it by yourself on the Google Cloud Console, the same 
+way as Cloud Build API was enabled in the previous step.
+
+### 6) Deploy your code to GAE
 
 The next step is to deploy your code to Google Cloud:
 
@@ -55,7 +57,7 @@ The next step is to deploy your code to Google Cloud:
 You could do it without the version flag, but it's a good practice so that GAE does not create a new version for each of 
 your deployments. You can also name versions after your Git branches (for example: master, develop).
 
-### 6) Check if Datastore is enabled
+### 7) Check if Datastore is enabled
 
 If it's not enabled automatically, just type "Datastore" in the Search box on Google Cloud Platform. Once you click on 
 the selection, the Datastore will be automatically enabled.

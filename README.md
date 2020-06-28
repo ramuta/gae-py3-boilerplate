@@ -45,7 +45,7 @@ A web application starter for Google App Engine Python 3 runtime.
 ## TODO
 
 - Admin: update SendGrid key
-- User: upload profile picture to Google Cloud Storage
+- User: upload profile picture to Google Cloud Storage + instructions in documentation (how to create a bucket)
 - Slovene translations (all HTML templates)
 - Documentation
 
