@@ -11,3 +11,4 @@ env_variables:
   MY_GAE_REGION: "europe-west1"  # if your region is europe-west, you need to add 1 at the end (same for us-central1)
   MY_APP_URL: "https://mysuper.webapp"
   MY_APP_EMAIL: "info@your.webapp"
+  MY_APP_NAME: "My Web App"

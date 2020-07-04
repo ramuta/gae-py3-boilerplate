@@ -2,6 +2,7 @@ import json
 import logging
 from flask import request
 from sendgrid import SendGridAPIClient, Asm, Mail, Attachment
+from sendgrid.helpers import mail
 from models.app_settings import AppSettings
 from utils.check_environment import is_local
 
@@ -12,6 +13,7 @@ def send_email_via_sendgrid():
 
     recipient_email = data.get("recipient_email")
     sender_email = data.get("sender_email")
+    sender_name = data.get("sender_name")
     email_subject = data.get("email_subject")
     email_body = data.get("email_body")
     unsubscribe_group = data.get("unsubscribe_group")
@@ -23,7 +25,7 @@ def send_email_via_sendgrid():
         # localhost (not really sending the email)
         logging.warning("SEND EMAIL: Not really sending email because we're on localhost.")
         logging.warning("Recipient: {}".format(recipient_email))
-        logging.warning("Sender: {}".format(sender_email))
+        logging.warning("Sender: {0}, {1}".format(sender_name, sender_email))
         logging.warning("Subject: {}".format(email_subject))
         logging.warning("Body: {}".format(email_body))
 
@@ -39,8 +41,8 @@ def send_email_via_sendgrid():
             sg = SendGridAPIClient(api_key=AppSettings.get().sendgrid_api_key)
 
             # Set up email message
-            email_message = Mail(from_email=sender_email, to_emails=recipient_email, subject=email_subject,
-                                 html_content=email_body)
+            email_message = Mail(from_email=mail.Email(email=sender_email, name=sender_name),
+                                 to_emails=recipient_email, subject=email_subject, html_content=email_body)
 
             if attachment_content_b64 and attachment_content_b64 is not None and attachment_content_b64 != "":
                 attachment = Attachment()
