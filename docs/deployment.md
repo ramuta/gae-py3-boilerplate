@@ -48,7 +48,11 @@ charging you. Google has a very generous **free quota** and you will very likely
 Cloud Tasks are not enabled by default, so you'll have to enable it by yourself on the Google Cloud Console, the same 
 way as Cloud Build API was enabled in the previous step.
 
-### 6) Deploy your code to GAE
+### 6) Enable App Engine Admin API
+
+This is needed if you'd like to do automated deployments via some CI service.
+
+### 7) Deploy your code to GAE
 
 The next step is to deploy your code to Google Cloud:
 
@@ -57,7 +61,7 @@ The next step is to deploy your code to Google Cloud:
 You could do it without the version flag, but it's a good practice so that GAE does not create a new version for each of 
 your deployments. You can also name versions after your Git branches (for example: master, develop).
 
-### 7) Check if Datastore is enabled
+### 8) Check if Datastore is enabled
 
 If it's not enabled automatically, just type "Datastore" in the Search box on Google Cloud Platform. Once you click on 
 the selection, the Datastore will be automatically enabled.
