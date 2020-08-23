@@ -1,9 +1,8 @@
 # Set up development environment
 
-## Install BOTH Python 2 & 3
+## Install Python 3
 
-Install both [Python 2](https://www.python.org/downloads/) and [Python 3](https://www.python.org/). Python 2 is needed 
-because Cloud SDK depends on it.
+Get [Python 3 here](https://www.python.org/).
 
 ## Install OpenJDK
 

@@ -1,0 +1,15 @@
+steps:
+# Install requirements, `--user` makes them persist between steps
+- name: 'google/cloud-sdk'
+  args: ['pip3', 'install', '-r', 'requirements.txt', '--user']
+  timeout: '160s'
+
+# run all tests in the tests folder
+- name: 'google/cloud-sdk'
+  args: ['python3', 'cloudbuild_tests.py', 'gcloud']
+  timeout: '160s'
+
+# deployment (make sure the cloud build service account in IAM has the Project Editor permissions)
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['app', 'deploy', 'app.yaml', 'cron.yaml', 'index.yaml', 'queue.yaml', '-q', '--version', 'production']
+  timeout: '360s'
